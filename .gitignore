@@ -1,0 +1,25 @@
+# Dependências do Node
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+
+# Nota: Manter package-lock.json é uma boa prática em projetos reais, 
+# mas se você quiser ignorá-lo por algum motivo específico, descomente a linha acima.
+
+# Pastas de build ou distribuição (se você usar ferramentas como Vite, Webpack, etc)
+dist/
+build/
+out/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Pastas de IDEs/Editores
+.vscode/
+.idea/
+
+# Variáveis de ambiente (Segurança!)
+.env
