@@ -23,3 +23,8 @@ Thumbs.db
 
 # Variáveis de ambiente (Segurança!)
 .env
+venv 
+
+#pdf's
+
+back-end/scripts/pdfs/
