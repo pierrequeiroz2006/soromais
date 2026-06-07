@@ -2,31 +2,7 @@ import requests
 import os
 
 ESTADOS = [
-    "acre",
-    "alagoas",
-    "bahia",
-    "ceara",
-    "distrito-federal",
-    "espirito-santo",
-    "goias",
-    "maranhao",
-    "mato-grosso-do-sul",
-    "mato-grosso",
-    "minas-gerais",
-    "para",
-    "paraiba",
-    "parana",
-    "pernambuco",
-    "piaui",
-    "rio-de-janeiro",
-    "rio-grande-do-norte",
-    "rio-grande-do-sul",
-    "rondonia",
-    "roraima",
-    "santa-catarina",
-    "sao-paulo",
-    "sergipe",
-    "tocantins",
+    "paraiba"
 ]
 
 #URL QUE SERÁ USADO COMO BASE PARA O DOWNLOAD DOS PDFS

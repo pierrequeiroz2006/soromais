@@ -1,0 +1,114 @@
+[
+  {
+    "municipio": "João Pessoa",
+    "unidade_de_saude": "Hospital Universitário Lauro Wanderley",
+    "endereco": "R. Tabeliao Estanislau Eloy, 585 - Castelo Branco",
+    "telefone": "(83) 3206-0600",
+    "cnes": 2400243,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Guarabira",
+    "unidade_de_saude": "Hospital Regional de Guarabira",
+    "endereco": "R João Pimentel Filho, S/N, Juá, Guarabiral",
+    "telefone": "(83) 3271-4933",
+    "cnes": 2603802,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Campina Grande",
+    "unidade_de_saude": "Hospital Regional de Emergência e Trauma Dom Luiz Gonzaga",
+    "endereco": "R. Av. Mal. Floriano Peixoto, 1045, Malvinas. - CEP 58432-809",
+    "telefone": "(83) 3310-5850",
+    "cnes": 2362856,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Picuí",
+    "unidade_de_saude": "Hospital Regional de Picuí DR. Felipe Thiago Gomes",
+    "endereco": "R. Francisco Pereira Gomes, 15, Monte Santo. CEP 58187-000",
+    "telefone": "(83) 3371-2554",
+    "cnes": 2757710,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Monteiro",
+    "unidade_de_saude": "Hospital e Maternidade Santa Filomena",
+    "endereco": "R. Epaminondas Azevedo, Centro. CEP 58500-000",
+    "telefone": "(83) 3351-2204",
+    "cnes": 2336812,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Patos",
+    "unidade_de_saude": "Hospital Infatil Noaldo Leite",
+    "endereco": "R. Hildo Menezes - Juá Doce. CEP 58704- 540",
+    "telefone": "(83) 3423-2501",
+    "cnes": 2605481,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Patos",
+    "unidade_de_saude": "Hospital Regional Deputado Janduhy Carneiro",
+    "endereco": "R. Horácio Nóbrega, S/N, Belo Horizonte. CEP 58704-000",
+    "telefone": "(83) 3423-2762",
+    "cnes": 2605473,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Piancó",
+    "unidade_de_saude": "Hospital Regional Wenceslau Lopes",
+    "endereco": "Av. João Agripino Filho - Ouro Branco - Piancó - CEP 58765-000",
+    "telefone": "(83) 3452-2201 / 1518 / 1543",
+    "cnes": 2600331,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Itaporanga",
+    "unidade_de_saude": "Hospital Distrital Dr. José Gomes da Silva",
+    "endereco": "Av. Oswaldo Cruz, 183, Centro. CEP 58780- 000",
+    "telefone": "(83) 3451-3058",
+    "cnes": 2341204,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Catolé do Rocha",
+    "unidade_de_saude": "Hospital Regional Dr. Américo Maia de Vasconcelos",
+    "endereco": "R. Castelo branco, 349, Batalhão. CEP 58884-000",
+    "telefone": "(83) 3441-2280",
+    "cnes": 2592460,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Cajazeiras",
+    "unidade_de_saude": "Hospital Regional de Cajazeiras Deputado José de Sousa Maciel",
+    "endereco": "Rua Tabelião Antonio Holanda - Centro - Cajazeiras - CEP 58900-000",
+    "telefone": "(83) 3531-3563 / 2736",
+    "cnes": 2613476,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Princesa Isabel",
+    "unidade_de_saude": "Hospital Regional Deputado José Pereira de Lima",
+    "endereco": "R. Teotônio Carlos de Andrade",
+    "telefone": "(83) 3457-2585",
+    "cnes": 2321637,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Itabaiana",
+    "unidade_de_saude": "Hospital Regional de Itabaiana Sebastião Rodrigues de Melo",
+    "endereco": "Av. Dep. Adauto Pereira da Silva - Nova Itabaiana - Itabaiana - CEP 58360-000",
+    "telefone": "(83) 3281-2640",
+    "cnes": 6644996,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  },
+  {
+    "municipio": "Sousa",
+    "unidade_de_saude": "Hospital Regional Manoel Gonçalves de Abrantes",
+    "endereco": "Rua José Fagundes de Lira, S/N, Jardins. CEP 58802-180",
+    "telefone": "(83) 3522- 6183",
+    "cnes": 2504537,
+    "atendimentos_disponiveis": "Botrópico, Crotálico, Elapídico, Escorpiônico e Aracnídico"
+  }
+]
