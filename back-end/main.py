@@ -132,3 +132,17 @@ async def enviar_whatsapp(dados: dict):
     )
 
     return {"sucesso": True, "sid": message.sid}
+
+@app.post("/identificar-animal")
+async def identificar_animal(file: UploadFile = File(...)):
+    #LÊ OS DADOS DA FOTO EM BYTES
+    conteudo_imagem = await file.read()
+
+    # 2. Aqui você pode enviar esses bytes para o Gemini ou salvar localmente
+    # Exemplo: resposta_ai = analisar_imagem_gemini(conteudo_imagem)
+    
+    return {
+        "mensagem": "Imagem recebida com sucesso!",
+        "nome_arquivo": file.filename,
+        "tamanho_bytes": len(conteudo_imagem)
+    }

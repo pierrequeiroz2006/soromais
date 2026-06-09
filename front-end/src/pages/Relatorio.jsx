@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import TopAppBar from '../components/TopAppBar'
 import BottomNav from '../components/BottomNav'
 import BottomSheet from '../components/BottomSheet'
@@ -10,9 +10,25 @@ export default function Relatorio() {
     tempo: '', peso: '', idade: '',
   })
 
+  const [fotoArquivo, setFotoArquivo] = useState(null)
+  const [fotoPreview, setFotoPreview] = useState(null)
+
+  const handleFileChange = (e) => {
+    const arquivo = e.target.files[0]
+    if (arquivo) {
+      setFotoArquivo(arquivo)
+      // Cria uma URL temporária para mostrar a foto na tela
+      setFotoPreview(URL.createObjectURL(arquivo))
+
+      
+    }
+  }
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
+
+
 
   // animal seria preenchido pelo Gemini futuramente
   const animal = null
@@ -26,19 +42,20 @@ export default function Relatorio() {
         {/* Foto / Identificação */}
         <section className="mt-lg">
           <div className="high-contrast-card rounded-xl overflow-hidden shadow-sm border border-outline-variant bg-white">
-            {animal ? (
-              <>
-                <div className="relative h-64 w-full">
-                  <img src={animal.foto} alt={animal.nome} className="w-full h-full object-cover" />
-                  <span className="absolute top-3 right-3 bg-error text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
-                    Venenosa
-                  </span>
-                </div>
-                <div className="p-md">
-                  <h2 className="font-headline-md text-headline-md text-on-surface">{animal.nome}</h2>
-                  <p className="font-body-md text-body-md text-on-surface-variant italic">{animal.nomeCientifico}</p>
-                </div>
-              </>
+            <input 
+            type="file"
+            id="fileInput" 
+            accept="image/*" 
+            onChange={handleFileChange}
+            className="hidden" 
+            />
+
+
+            {/* Se a fotoPreview existir, mostra a foto. Se não, mostra o card com o botão */}
+            {fotoPreview ? (
+              <div className="relative h-64 w-full">
+                <img src={fotoPreview} alt="Foto do animal" className="w-full h-full object-cover" />
+              </div>
             ) : (
               <div className="h-64 w-full bg-surface-container flex flex-col items-center justify-center gap-sm p-md">
                 <span className="material-symbols-outlined text-primary text-5xl">photo_camera</span>
@@ -48,9 +65,14 @@ export default function Relatorio() {
                 <p className="font-body-md text-body-md text-on-surface-variant italic text-center">
                   Identificaremos a espécie automaticamente
                 </p>
-                <button className="mt-2 border border-primary text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5">
+                
+                <label 
+                  htmlFor="fileInput" 
+                  className="mt-2 border border-primary text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 cursor-pointer inline-block text-center"
+                >
                   Enviar foto
-                </button>
+                </label>
+
                 <button className="text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 underline">
                   Descrever animal manualmente
                 </button>
