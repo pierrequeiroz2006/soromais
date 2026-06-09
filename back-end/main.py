@@ -1,10 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 from dotenv import load_dotenv
 import os
 import httpx
 from twilio.rest import Client
+from google import genai
+import json
+from google.genai import types
 
 # Carrega as variáveis do .env
 load_dotenv()
@@ -17,6 +20,9 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Cria o app FastAPI
 app = FastAPI()
 
+# Inicializa o cliente do Gemini (ele busca automaticamente o GEMINI_API_KEY do seu .env)
+client = genai.Client()
+
 # Permite o front-end conversar com o back-end
 app.add_middleware(
     CORSMiddleware,
@@ -24,6 +30,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Rota de teste
 @app.get("/")
@@ -133,16 +140,73 @@ async def enviar_whatsapp(dados: dict):
 
     return {"sucesso": True, "sid": message.sid}
 
+# =======================================================
+# NOVA ROTA: IDENTIFICAÇÃO DO ANIMAL COM GEMINI
+# =======================================================
+
+# Schema inline — sem problema manter aqui dado o escopo do projeto
+ANIMAL_SCHEMA = {
+    "especie": "Nome popular e científico (ex: Escorpião-amarelo / Tityus serrulatus)",
+    "lugar": "Regiões do país e habitats comuns onde é encontrado",
+    "efeitos": "Principais sintomas e efeitos do veneno no corpo humano",
+    "tempo_de_acao": "Tempo estimado para agravamento ou risco de morte sem socorro",
+    "gravidade": "Nível de urgência: exatamente um de ['Baixa', 'Moderada', 'Alta', 'Extrema']"
+}
+
+PROMPT_IDENTIFICACAO = f"""Você é um especialista em animais peçonhentos do Brasil.
+Analise a imagem e retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.
+
+Regras para os valores:
+- Sem emojis em nenhum campo
+- Textos curtos e diretos, máximo 2 linhas por campo
+- O campo "efeitos" deve ser uma lista de 3 a 4 tópicos separados por '\\n', cada um começando com '- '
+- O campo "lugar" deve citar apenas regiões/biomas, sem detalhes extensos
+- O campo "tempo_de_acao" deve ser uma frase curta (ex: "Sintomas em 30min, risco de morte em 6-24h sem tratamento")
+
+O JSON deve ter exatamente estas chaves:
+{json.dumps(ANIMAL_SCHEMA, ensure_ascii=False, indent=2)}
+"""
+
 @app.post("/identificar-animal")
 async def identificar_animal(file: UploadFile = File(...)):
-    #LÊ OS DADOS DA FOTO EM BYTES
-    conteudo_imagem = await file.read()
+    imagem_bytes = await file.read()
 
-    # 2. Aqui você pode enviar esses bytes para o Gemini ou salvar localmente
-    # Exemplo: resposta_ai = analisar_imagem_gemini(conteudo_imagem)
-    
-    return {
-        "mensagem": "Imagem recebida com sucesso!",
-        "nome_arquivo": file.filename,
-        "tamanho_bytes": len(conteudo_imagem)
-    }
+    # Detecta o mime type a partir do content_type do upload
+    mime_type = file.content_type or "image/jpeg"
+
+    conteudo_envio = [
+        types.Part.from_bytes(data=imagem_bytes, mime_type=mime_type),
+        PROMPT_IDENTIFICACAO,
+    ]
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=conteudo_envio,
+        )
+
+        raw_text = response.text.strip()
+        print("\n=== RESPOSTA DO GEMINI ===\n", raw_text, "\n==========================\n")
+
+        # Remove cercas de markdown caso o modelo desobedeça o prompt
+        if raw_text.startswith("```"):
+            raw_text = raw_text.split("\n", 1)[-1]
+            raw_text = raw_text.rsplit("```", 1)[0].strip()
+
+        analise = json.loads(raw_text)
+
+        # Garante que gravidade está dentro dos valores válidos
+        valores_validos = {"Baixa", "Moderada", "Alta", "Extrema"}
+        if analise.get("gravidade") not in valores_validos:
+            analise["gravidade"] = "Moderada"  # fallback seguro
+
+        return {
+            "status": "sucesso",
+            "arquivo": file.filename,
+            "analise_ia": analise,  # agora é um dict, não string
+        }
+
+    except json.JSONDecodeError as e:
+        return {"erro": f"IA retornou resposta mal formatada: {str(e)}", "raw": raw_text}
+    except Exception as e:
+        return {"erro": f"Não foi possível processar a imagem: {str(e)}"}
