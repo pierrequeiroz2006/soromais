@@ -4,6 +4,7 @@ from supabase import create_client
 from dotenv import load_dotenv
 import os
 import httpx
+from twilio.rest import Client
 
 # Carrega as variáveis do .env
 load_dotenv()
@@ -91,3 +92,43 @@ async def hospitais_proximos(lat: float, lng: float):
         })
 
     return hospitais
+
+from twilio.rest import Client
+
+@app.post("/enviar-whatsapp")
+async def enviar_whatsapp(dados: dict):
+    # Busca o telefone do hospital no banco
+    hospital = supabase.table("hospital").select("*").eq("id", dados.get("hospital_id")).execute()
+    
+    if not hospital.data:
+        return {"erro": "Hospital não encontrado"}
+    
+    telefone = hospital.data[0].get("telefone")
+    if not telefone:
+        return {"erro": "Hospital sem telefone cadastrado"}
+
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+    client = Client(account_sid, auth_token)
+
+    mensagem = f"""
+*RELATÓRIO DE ACIDENTE - SOROMAIS*
+
+*Paciente:* {dados.get('nome', 'Não informado')}
+*Idade:* {dados.get('idade', 'Não informado')} anos
+*Peso:* {dados.get('peso', 'Não informado')} kg
+*Estado:* {dados.get('estado', 'Não informado')}
+
+*Animal:* {dados.get('animal', 'Não identificado')}
+*Local da picada:* {dados.get('localPicada', 'Não informado')}
+*Tempo decorrido:* {dados.get('tempo', 'Não informado')} min
+*Localização:* {dados.get('localizacao', 'Não informada')}
+    """
+
+    message = client.messages.create(
+        from_=os.getenv("TWILIO_WHATSAPP_NUMBER"),
+        body=mensagem,
+        to=f"whatsapp:{telefone}"
+    )
+
+    return {"sucesso": True, "sid": message.sid}
