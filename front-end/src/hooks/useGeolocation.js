@@ -1,42 +1,37 @@
 import { useState, useEffect } from "react";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
-
 export function useGeolocation() {
-  const [status, setStatus] = useState("idle"); // idle | loading | granted | denied | error
+  const [status, setStatus] = useState("idle");
   const [coords, setCoords] = useState(null);
 
   useEffect(() => {
+    console.log("[geo] hook iniciado");
+
     if (!navigator.geolocation) {
+      console.warn("[geo] navigator.geolocation não disponível");
       setStatus("error");
       return;
     }
 
     setStatus("loading");
+    console.log("[geo] solicitando permissão...");
 
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
+      (position) => {
         const { latitude, longitude } = position.coords;
+        console.log("[geo] ✅ coordenadas:", { latitude, longitude });
         setCoords({ latitude, longitude });
         setStatus("granted");
-
-        try {
-          await fetch(`${API_BASE}/api/localizacao`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ latitude, longitude }),
-          });
-        } catch (err) {
-          console.error("Erro ao enviar localização:", err);
-        }
       },
       (err) => {
-        console.warn("Permissão de localização negada:", err.message);
+        console.warn("[geo] ❌ erro/negado:", err.code, err.message);
         setStatus("denied");
       },
-      { enableHighAccuracy: true, timeout: 10_000 }
+      { enableHighAccuracy: false, timeout: 30_000 }
     );
   }, []);
 
   return { status, coords };
 }
+
+//FUNCIONANDO APENAS EM LOCALHOST, APENAS QUANDO FOR PARA PRODUÇÃO IRÁ FUNCIONAR
