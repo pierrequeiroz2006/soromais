@@ -98,7 +98,7 @@ const handleFileChange = async (e) => {
           {carregando && (
             <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white p-4">
               <span className="material-symbols-outlined animate-spin text-4xl mb-2">sync</span>
-              <p className="font-semibold">O Gemini está analisando a foto...</p>
+              <p className="font-semibold">Analisando a foto...</p>
             </div>
           )}
         </div>
