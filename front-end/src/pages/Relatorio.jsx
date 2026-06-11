@@ -12,60 +12,65 @@ export default function Relatorio() {
 
 
   const fileInputRef = useRef(null);
-  const [resultadoIa, setResultadoIa] = useState(null)
   const [carregando, setCarregando] = useState(false)
   const [fotoArquivo, setFotoArquivo] = useState(null)
-  const [fotoPreview, setFotoPreview] = useState(null)
-
-const handleFileChange = async (e) => {
-  alert("Passo 1: Função handleFileChange foi acionada!");
   
-  const arquivo = e.target.files[0];
-  if (!arquivo) {
-    alert("Erro: Nenhum arquivo foi detectado no evento.");
-    return;
-  }
+  const [resultadoIa, setResultadoIa] = useState(() => {
+  const salvo = sessionStorage.getItem('soromais_ia');
+  return salvo ? JSON.parse(salvo) : null;
+});
 
-  alert("Passo 2: Arquivo detectado! Nome: " + arquivo.name);
-  
-  setFotoArquivo(arquivo);
-  setFotoPreview(URL.createObjectURL(arquivo));
-  setCarregando(true);
+const [fotoPreview, setFotoPreview] = useState(() => {
+  return sessionStorage.getItem('soromais_preview') || null;
+});
 
-  alert("Passo 3: Vou tentar disparar o fetch para o back-end agora...");
 
-  const formData = new FormData();
-  formData.append('file', arquivo);
-
-  try {
-    const resposta = await fetch('http://localhost:8000/identificar-animal', {
-      method: 'POST',
-      body: formData,
-    });
-
-    alert("Passo 4: O servidor respondeu com status: " + resposta.status);
+  const handleFileChange = async (e) => {
+    const arquivo = e.target.files[0];
+    if (!arquivo) return; // Segurança caso o usuário cancele a seleção
     
-    const dados = await resposta.json();
-    
-    // Separa o texto do Gemini por linhas
-    const ia = dados.analise_ia;
+    // Criamos a URL temporária da imagem e salvamos nos estados
+    const urlImagem = URL.createObjectURL(arquivo);
+    setFotoArquivo(arquivo);
+    setFotoPreview(urlImagem);
+    setCarregando(true);
 
-    setResultadoIa({
-      especie: ia.especie,
-      lugar: ia.lugar,
-      efeitos: ia.efeitos,          // já é string, vai virar um item da lista
-      tempo_de_acao: ia.tempo_de_acao,
-      soro_correto: ia.soro_correto,
-      gravidade: ia.gravidade,
-    });
-      } catch (erro) {
-        alert("Caiu no CATCH! Erro: " + erro.message);
-      } finally {
-        setCarregando(false);
+    const formData = new FormData();
+    formData.append('file', arquivo);
+
+    try {
+      const resposta = await fetch('http://localhost:8000/identificar-animal', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const dados = await resposta.json();
+      const ia = dados.analise_ia;
+
+      if (ia) {
+        const novoResultado = {
+          especie: ia.especie,
+          lugar: ia.lugar,
+          efeitos: ia.efeitos,
+          tempo_de_acao: ia.tempo_de_acao,
+          soro_correto: ia.soro_correto,
+          gravidade: ia.gravidade,
+        };
+        
+        setResultadoIa(novoResultado);
+        
+        sessionStorage.setItem('soromais_ia', JSON.stringify(novoResultado));
+        
+        sessionStorage.setItem('soromais_preview', urlImagem);
       }
-      };
+      
+    } catch (erro) {
+      alert("Caiu no CATCH! Erro: " + erro.message);
+    } finally {
+      setCarregando(false);
+    }
+  };  
   
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
@@ -98,7 +103,7 @@ const handleFileChange = async (e) => {
           {carregando && (
             <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white p-4">
               <span className="material-symbols-outlined animate-spin text-4xl mb-2">sync</span>
-              <p className="font-semibold">O Gemini está analisando a foto...</p>
+              <p className="font-semibold">Analisando a foto...</p>
             </div>
           )}
         </div>
