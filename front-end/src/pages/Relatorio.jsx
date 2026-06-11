@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import TopAppBar from '../components/TopAppBar'
 import BottomNav from '../components/BottomNav'
 import BottomSheet from '../components/BottomSheet'
+import { useGeolocation } from '../hooks/useGeolocation'
 
 export default function Relatorio() {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -10,26 +11,25 @@ export default function Relatorio() {
     tempo: '', peso: '', idade: '',
   })
 
+  const { status, coords } = useGeolocation();
 
   const fileInputRef = useRef(null);
   const [carregando, setCarregando] = useState(false)
   const [fotoArquivo, setFotoArquivo] = useState(null)
   
   const [resultadoIa, setResultadoIa] = useState(() => {
-  const salvo = sessionStorage.getItem('soromais_ia');
-  return salvo ? JSON.parse(salvo) : null;
-});
+    const salvo = sessionStorage.getItem('soromais_ia');
+    return salvo ? JSON.parse(salvo) : null;
+  });
 
-const [fotoPreview, setFotoPreview] = useState(() => {
-  return sessionStorage.getItem('soromais_preview') || null;
-});
-
+  const [fotoPreview, setFotoPreview] = useState(() => {
+    return sessionStorage.getItem('soromais_preview') || null;
+  });
 
   const handleFileChange = async (e) => {
     const arquivo = e.target.files[0];
-    if (!arquivo) return; // Segurança caso o usuário cancele a seleção
+    if (!arquivo) return; 
     
-    // Criamos a URL temporária da imagem e salvamos nos estados
     const urlImagem = URL.createObjectURL(arquivo);
     setFotoArquivo(arquivo);
     setFotoPreview(urlImagem);
@@ -58,9 +58,7 @@ const [fotoPreview, setFotoPreview] = useState(() => {
         };
         
         setResultadoIa(novoResultado);
-        
         sessionStorage.setItem('soromais_ia', JSON.stringify(novoResultado));
-        
         sessionStorage.setItem('soromais_preview', urlImagem);
       }
       
@@ -83,55 +81,51 @@ const [fotoPreview, setFotoPreview] = useState(() => {
 
       <main className="pt-14 px-container-margin space-y-lg max-w-[800px] mx-auto pb-36">
 
-  {/* Foto / Identificação */}
-  <section className="mt-lg">
-    <div className="high-contrast-card rounded-xl overflow-hidden shadow-sm border border-outline-variant bg-white">
-      
-      {/* 1. O INPUT: Agora ele passa o 'e' (evento) direto na chamada */}
-      <input 
-        type="file"
-        id="fileInput" 
-        accept="image/*" 
-        onChange={(evento) => handleFileChange(evento)} // <-- Passando o evento explicitamente
-        className="hidden" 
-      />
+        {/* Foto / Identificação */}
+        <section className="mt-lg">
+          <div className="high-contrast-card rounded-xl overflow-hidden shadow-sm border border-outline-variant bg-white">
+            <input 
+              type="file"
+              id="fileInput" 
+              accept="image/*" 
+              onChange={(evento) => handleFileChange(evento)} 
+              className="hidden" 
+            />
 
-      {/* Se a fotoPreview existir, mostra a foto ou o feedback de carregamento */}
-      {fotoPreview ? (
-        <div className="relative h-64 w-full">
-          <img src={fotoPreview} alt="Foto do animal" className="w-full h-full object-cover" />
-          {carregando && (
-            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white p-4">
-              <span className="material-symbols-outlined animate-spin text-4xl mb-2">sync</span>
-              <p className="font-semibold">Analisando a foto...</p>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="h-64 w-full bg-surface-container flex flex-col items-center justify-center gap-sm p-md">
-          <span className="material-symbols-outlined text-primary text-5xl">photo_camera</span>
-          <h2 className="font-headline-md text-headline-md text-on-surface text-center">
-            Tire ou Envie uma Foto
-          </h2>
-          <p className="font-body-md text-body-md text-on-surface-variant italic text-center">
-            Identificaremos a espécie automaticamente
-          </p>
-          
-          {/* 2. O BOTÃO: Usa a tag label padrão do HTML que ativa o input pelo 'id' de forma nativa */}
-          <label 
-            htmlFor="fileInput" 
-            className="mt-2 border border-primary text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 cursor-pointer inline-block text-center"
-          >
-            Enviar foto
-          </label>
+            {fotoPreview ? (
+              <div className="relative h-64 w-full">
+                <img src={fotoPreview} alt="Foto do animal" className="w-full h-full object-cover" />
+                {carregando && (
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white p-4">
+                    <span className="material-symbols-outlined animate-spin text-4xl mb-2">sync</span>
+                    <p className="font-semibold">Analisando a foto...</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="h-64 w-full bg-surface-container flex flex-col items-center justify-center gap-sm p-md">
+                <span className="material-symbols-outlined text-primary text-5xl">photo_camera</span>
+                <h2 className="font-headline-md text-headline-md text-on-surface text-center">
+                  Tire ou Envie uma Foto
+                </h2>
+                <p className="font-body-md text-body-md text-on-surface-variant italic text-center">
+                  Identificaremos a espécie automaticamente
+                </p>
+                
+                <label 
+                  htmlFor="fileInput" 
+                  className="mt-2 border border-primary text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 cursor-pointer inline-block text-center"
+                >
+                  Enviar foto
+                </label>
 
-          <button type="button" className="text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 underline">
-            Descrever animal manualmente
-          </button>
-        </div>
-      )}
-    </div>
-  </section>
+                <button type="button" className="text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 underline">
+                  Descrever animal manualmente
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
 
         {animal && (
           <section className="bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-sm">
@@ -289,18 +283,41 @@ const [fotoPreview, setFotoPreview] = useState(() => {
                   </span>
                 </div>
               </div>
-              <p className="font-body-md text-on-surface font-semibold">
-                Trilha da Cachoeira, Mata Atlântica
-              </p>
-              <p className="font-label-caps text-label-caps text-on-surface-variant">
-                Lat: -23.5505, Long: -46.6333
-              </p>
+              
+              {status === "loading" && (
+                <p className="font-body-md text-on-surface font-semibold animate-pulse">
+                  Buscando localização...
+                </p>
+              )}
+
+              {status === "granted" && coords && (
+                <>
+                  <p className="font-body-md text-on-surface font-semibold">
+                    Localização Detectada
+                  </p>
+                  <p className="font-label-caps text-label-caps text-on-surface-variant">
+                    Lat: {coords.latitude.toFixed(4)}, Long: {coords.longitude.toFixed(4)}
+                  </p>
+                </>
+              )}
+
+              {status === "denied" && (
+                <p className="text-sm text-error font-medium">
+                  ❌ Permissão de GPS negada pelo usuário.
+                </p>
+              )}
+
+              {status === "error" && (
+                <p className="text-sm text-error font-medium">
+                  ❌ GPS não suportado ou indisponível neste navegador.
+                </p>
+              )}
             </div>
           </section>
         </div>
       </main>
 
-      {/* Botão fixo — desabilitado sem animal */}
+      {/* Botão fixo com template literals corrigido */}
       <button
         onClick={() => animal && setSheetOpen(true)}
         disabled={!animal}
