@@ -83,6 +83,18 @@ export default function Relatorio() {
     }
   };  
   
+  const handleRemoveFile = () => {
+    setFotoArquivo(null)
+    setFotoPreview(null)
+    setResultadoIa(null) 
+    sessionStorage.removeItem('soromais_ia')
+    sessionStorage.removeItem('soromais_preview')
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
@@ -109,6 +121,17 @@ export default function Relatorio() {
             {fotoPreview ? (
               <div className="relative h-64 w-full">
                 <img src={fotoPreview} alt="Foto do animal" className="w-full h-full object-cover" />
+                {!carregando && (
+                <button
+                  type="button"
+                  onClick={handleRemoveFile}
+                  className="absolute top-3 right-3 bg-surface-container-highest text-on-surface-variant hover:bg-error-container hover:text-on-error-container h-10 w-10 rounded-full flex items-center justify-center shadow-md transition-colors active:scale-95 duration-200 z-10"
+                  title="Remover foto"
+                >
+                  <span className="material-symbols-outlined text-[22px]">close</span>
+                </button>
+              )}
+
                 {carregando && (
                   <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white p-4">
                     <span className="material-symbols-outlined animate-spin text-4xl mb-2">sync</span>
