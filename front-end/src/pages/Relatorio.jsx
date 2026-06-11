@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import TopAppBar from '../components/TopAppBar'
 import BottomNav from '../components/BottomNav'
 import BottomSheet from '../components/BottomSheet'
@@ -12,6 +12,20 @@ export default function Relatorio() {
   })
 
   const { status, coords } = useGeolocation();
+  const [pontoReferencia, setPontoReferencia] = useState('');
+
+  useEffect(() => {
+    if (status === "granted" && coords) {
+      fetch(`http://localhost:8000/relatorio/buscar-endereco?lat=${coords.latitude}&lng=${coords.longitude}`)
+        .then(res => res.json())
+        .then(dados => {
+          if (dados.endereco) {
+            setPontoReferencia(dados.endereco);
+          }
+        })
+        .catch(err => console.error("Erro ao buscar endereço:", err));
+    }
+  }, [status, coords]);
 
   const fileInputRef = useRef(null);
   const [carregando, setCarregando] = useState(false)
@@ -295,6 +309,11 @@ export default function Relatorio() {
                   <p className="font-body-md text-on-surface font-semibold">
                     Localização Detectada
                   </p>
+                  {pontoReferencia && (
+                  <p className="font-body-sm text-primary font-medium mt-1">
+                  {pontoReferencia}
+                  </p>
+                  )}
                   <p className="font-label-caps text-label-caps text-on-surface-variant">
                     Lat: {coords.latitude.toFixed(4)}, Long: {coords.longitude.toFixed(4)}
                   </p>
