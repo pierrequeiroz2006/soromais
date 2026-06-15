@@ -215,6 +215,42 @@ export default function Relatorio() {
                   </div>
                 )}
               </div>
+            ) : sugestoes ? (
+              <div className="p-md">
+                <div className="flex items-center gap-xs mb-md">
+                  <span className="material-symbols-outlined text-primary">help</span>
+                  <h3 className="font-headline-sm text-headline-sm">Qual se parece mais?</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-sm">
+                  {sugestoes.map((especie, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleSelecionarEspecie(especie)}
+                      className="flex flex-col rounded-xl overflow-hidden border border-outline-variant bg-white active:scale-95 transition-transform shadow-sm text-left"
+                    >
+                      {especie.imagem_url ? (
+                        <img src={especie.imagem_url} alt={especie.nome_popular} className="w-full h-32 object-cover" />
+                      ) : (
+                        <div className="w-full h-32 bg-surface-container flex items-center justify-center">
+                          <span className="material-symbols-outlined text-on-surface-variant text-4xl">pest_control</span>
+                        </div>
+                      )}
+                      <div className="p-xs">
+                        <p className="font-label-lg text-on-surface font-semibold leading-tight">{especie.nome_popular}</p>
+                        <p className="font-body-sm text-on-surface-variant italic leading-tight">{especie.nome_cientifico}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setSugestoes(null); setMostrarDescricao(true) }}
+                  className="mt-md w-full py-2 rounded-lg border border-outline-variant text-on-surface-variant font-semibold active:scale-95 transition-transform hover:bg-surface-container"
+                >
+                  Nenhuma delas — tentar novamente
+                </button>
+              </div>
             ) : (
               <div className="min-h-64 w-full bg-surface-container flex flex-col items-center justify-center gap-sm p-md">
                 <span className="material-symbols-outlined text-primary text-5xl">photo_camera</span>
@@ -242,28 +278,34 @@ export default function Relatorio() {
 
                   {mostrarDescricao && (
                     <div className="w-full border-t border-outline-variant pt-md">
-                      <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
-                        Descreva o animal
-                      </label>
-                      <textarea
-                        value={descricaoManual}
-                        onChange={(e) => setDescricaoManual(e.target.value)}
-                        placeholder="Ex: Cobra escura com manchas amarelas, corpo grosso, cabeça triangular..."
-                        rows={4}
-                        className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none resize-y"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSugerirEspecies}
-                        disabled={carregandoSugestoes || !descricaoManual.trim()}
-                        className="mt-sm w-full flex items-center justify-center gap-xs border border-primary text-primary py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {carregandoSugestoes
-                          ? <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>
-                          : <span className="material-symbols-outlined text-[20px]">send</span>
-                        }
-                        {carregandoSugestoes ? 'Buscando...' : 'Identificar pelo texto'}
-                      </button>
+                      {carregandoSugestoes ? (
+                        <div className="flex flex-col items-center justify-center gap-sm py-lg">
+                          <span className="material-symbols-outlined animate-spin text-primary text-4xl">sync</span>
+                          <p className="font-body-md text-on-surface-variant">Buscando...</p>
+                        </div>
+                      ) : (
+                        <>
+                          <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
+                            Descreva o animal
+                          </label>
+                          <textarea
+                            value={descricaoManual}
+                            onChange={(e) => setDescricaoManual(e.target.value)}
+                            placeholder="Ex: Cobra escura com manchas amarelas, corpo grosso, cabeça triangular..."
+                            rows={4}
+                            className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none resize-y"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleSugerirEspecies}
+                            disabled={!descricaoManual.trim()}
+                            className="mt-sm w-full flex items-center justify-center gap-xs border border-primary text-primary py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">send</span>
+                            Identificar pelo texto
+                          </button>
+                        </>
+                      )}
                     </div>
                   )}
               </div>
@@ -271,54 +313,10 @@ export default function Relatorio() {
           </div>
         </section>
 
-        {carregandoSugestoes && (
-          <section className="bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-sm flex flex-col items-center justify-center gap-sm py-xl">
+        {carregandoSugestoes && fotoPreview && (
+          <section className="bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-sm flex flex-col items-center justify-center gap-sm py-lg">
             <span className="material-symbols-outlined animate-spin text-primary text-4xl">sync</span>
-            <p className="font-body-md text-on-surface-variant">Buscando ...</p>
-          </section>
-        )}
-
-        {sugestoes && (
-          <section className="bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-sm">
-            <div className="flex items-center gap-xs mb-md">
-              <span className="material-symbols-outlined text-primary">help</span>
-              <h3 className="font-headline-sm text-headline-sm">Qual se parece mais?</h3>
-            </div>
-
-            <div className="grid grid-cols-2 gap-sm">
-              {sugestoes.map((especie, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => handleSelecionarEspecie(especie)}
-                  className="flex flex-col rounded-xl overflow-hidden border border-outline-variant bg-white active:scale-95 transition-transform shadow-sm text-left"
-                >
-                  {especie.imagem_url ? (
-                    <img
-                      src={especie.imagem_url}
-                      alt={especie.nome_popular}
-                      className="w-full h-32 object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-32 bg-surface-container flex items-center justify-center">
-                      <span className="material-symbols-outlined text-on-surface-variant text-4xl">pest_control</span>
-                    </div>
-                  )}
-                  <div className="p-xs">
-                    <p className="font-label-lg text-on-surface font-semibold leading-tight">{especie.nome_popular}</p>
-                    <p className="font-body-sm text-on-surface-variant italic leading-tight">{especie.nome_cientifico}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => { setSugestoes(null); setMostrarDescricao(true) }}
-              className="mt-md w-full py-2 rounded-lg border border-outline-variant text-on-surface-variant font-semibold active:scale-95 transition-transform hover:bg-surface-container"
-            >
-              Nenhuma delas — tentar novamente
-            </button>
+            <p className="font-body-md text-on-surface-variant">Buscando informações...</p>
           </section>
         )}
 

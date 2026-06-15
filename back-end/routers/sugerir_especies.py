@@ -1,6 +1,6 @@
 import json
 import asyncio
-from fastapi import APIRouter, Form
+from fastapi import APIRouter, Form, HTTPException
 from typing import Optional
 from ..dependencies import gemini_client
 from ..schemas.sugestao import EspecieSugerida, RespostaSugestao
@@ -42,10 +42,13 @@ async def sugerir_especies(
     localizacao = ponto_ref or (f"lat {lat}, lng {lng} (Brasil)" if lat and lng else "")
     prompt = _build_prompt(descricao, localizacao)
 
-    response = gemini_client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
-    )
+    try:
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"IA indisponível no momento: {str(e)}")
 
     raw = response.text.strip()
     print("\n=== GEMINI SUGESTÕES ===\n", raw, "\n=======================\n")
@@ -53,7 +56,10 @@ async def sugerir_especies(
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
 
-    especies = json.loads(raw)[:4]
+    try:
+        especies = json.loads(raw)[:4]
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=422, detail=f"IA retornou resposta mal formatada: {str(e)}")
 
     imagens = await asyncio.gather(*[
         buscar_imagem_especie(e["nome_cientifico"]) for e in especies

@@ -1,5 +1,5 @@
 import json
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from typing import Optional
 from google.genai import types
 from ..schemas.animal import RespostaIdentificacao
@@ -78,23 +78,22 @@ async def identificar_animal(
         )
 
     except json.JSONDecodeError as e:
-        return {"erro": f"IA retornou resposta mal formatada: {str(e)}", "raw": raw}
+        raise HTTPException(status_code=422, detail=f"IA retornou resposta mal formatada: {str(e)}")
     except Exception as e:
-        return {"erro": f"Não foi possível processar a imagem: {str(e)}"}
+        raise HTTPException(status_code=503, detail=f"Não foi possível processar a imagem: {str(e)}")
 
 
 @router.post("/por-nome", response_model=RespostaIdentificacao)
 async def identificar_por_nome(nome_cientifico: str = Form(...)):
     prompt = f"""Você é um especialista em animais peçonhentos do Brasil.
-Retorne SOMENTE um objeto JSON válido sobre a espécie "{nome_cientifico}".
-Sem texto adicional, sem markdown, sem explicações.
+A espécie é "{nome_cientifico}". Retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.
 
 Regras para os valores:
 - Sem emojis em nenhum campo
 - Textos curtos e diretos, máximo 2 linhas por campo
 - O campo "efeitos" deve ser uma lista de 3 a 4 tópicos separados por '\\n', cada um começando com '- '
 - O campo "lugar" deve citar apenas regiões/biomas, sem detalhes extensos
-- O campo "tempo_de_acao" deve ser uma frase curta
+- O campo "tempo_de_acao" deve ser uma frase curta (ex: "Sintomas em 30min, risco de morte em 6-24h sem tratamento")
 
 O JSON deve ter exatamente estas chaves:
 {json.dumps(_ANIMAL_SCHEMA, ensure_ascii=False, indent=2)}
@@ -124,6 +123,6 @@ O JSON deve ter exatamente estas chaves:
         )
 
     except json.JSONDecodeError as e:
-        return {"erro": f"IA retornou resposta mal formatada: {str(e)}", "raw": raw}
+        raise HTTPException(status_code=422, detail=f"IA retornou resposta mal formatada: {str(e)}")
     except Exception as e:
-        return {"erro": f"Não foi possível processar: {str(e)}"}
+        raise HTTPException(status_code=503, detail=f"Não foi possível processar: {str(e)}")
