@@ -1,5 +1,6 @@
 import json
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from typing import Optional
 from google.genai import types
 from ..schemas.animal import RespostaIdentificacao
 from ..dependencies import gemini_client
@@ -14,8 +15,13 @@ _ANIMAL_SCHEMA = {
     "gravidade": "Nível de urgência: exatamente um de ['Baixa', 'Moderada', 'Alta', 'Extrema']",
 }
 
-_PROMPT = f"""Você é um especialista em animais peçonhentos do Brasil.
-Analise a imagem e retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.
+_GRAVIDADES_VALIDAS = {"Baixa", "Moderada", "Alta", "Extrema"}
+
+
+def _build_prompt(localizacao: str) -> str:
+    contexto_geo = f"\nLocalização do incidente: {localizacao}" if localizacao else ""
+    return f"""Você é um especialista em animais peçonhentos do Brasil.
+Analise a imagem e retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.{contexto_geo}
 
 Regras para os valores:
 - Sem emojis em nenhum campo
@@ -23,22 +29,29 @@ Regras para os valores:
 - O campo "efeitos" deve ser uma lista de 3 a 4 tópicos separados por '\\n', cada um começando com '- '
 - O campo "lugar" deve citar apenas regiões/biomas, sem detalhes extensos
 - O campo "tempo_de_acao" deve ser uma frase curta (ex: "Sintomas em 30min, risco de morte em 6-24h sem tratamento")
+- Use a localização do incidente (se fornecida) para priorizar espécies nativas dessa região
 
 O JSON deve ter exatamente estas chaves:
 {json.dumps(_ANIMAL_SCHEMA, ensure_ascii=False, indent=2)}
 """
 
-_GRAVIDADES_VALIDAS = {"Baixa", "Moderada", "Alta", "Extrema"}
-
 
 @router.post("", response_model=RespostaIdentificacao)
-async def identificar_animal(file: UploadFile = File(...)):
+async def identificar_animal(
+    file: UploadFile = File(...),
+    lat: Optional[float] = Form(None),
+    lng: Optional[float] = Form(None),
+    ponto_ref: Optional[str] = Form(None),
+):
     imagem_bytes = await file.read()
     mime_type = file.content_type or "image/jpeg"
 
+    localizacao = ponto_ref or (f"lat {lat}, lng {lng} (Brasil)" if lat and lng else "")
+    prompt = _build_prompt(localizacao)
+
     conteudo = [
         types.Part.from_bytes(data=imagem_bytes, mime_type=mime_type),
-        _PROMPT,
+        prompt,
     ]
 
     try:
@@ -65,6 +78,51 @@ async def identificar_animal(file: UploadFile = File(...)):
         )
 
     except json.JSONDecodeError as e:
-        return {"erro": f"IA retornou resposta mal formatada: {str(e)}", "raw": raw}
+        raise HTTPException(status_code=422, detail=f"IA retornou resposta mal formatada: {str(e)}")
     except Exception as e:
-        return {"erro": f"Não foi possível processar a imagem: {str(e)}"}
+        raise HTTPException(status_code=503, detail=f"Não foi possível processar a imagem: {str(e)}")
+
+
+@router.post("/por-nome", response_model=RespostaIdentificacao)
+async def identificar_por_nome(nome_cientifico: str = Form(...)):
+    prompt = f"""Você é um especialista em animais peçonhentos do Brasil.
+A espécie é "{nome_cientifico}". Retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.
+
+Regras para os valores:
+- Sem emojis em nenhum campo
+- Textos curtos e diretos, máximo 2 linhas por campo
+- O campo "efeitos" deve ser uma lista de 3 a 4 tópicos separados por '\\n', cada um começando com '- '
+- O campo "lugar" deve citar apenas regiões/biomas, sem detalhes extensos
+- O campo "tempo_de_acao" deve ser uma frase curta (ex: "Sintomas em 30min, risco de morte em 6-24h sem tratamento")
+
+O JSON deve ter exatamente estas chaves:
+{json.dumps(_ANIMAL_SCHEMA, ensure_ascii=False, indent=2)}
+"""
+
+    try:
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+
+        raw = response.text.strip()
+        print("\n=== GEMINI POR NOME ===\n", raw, "\n======================\n")
+
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+
+        analise = json.loads(raw)
+
+        if analise.get("gravidade") not in _GRAVIDADES_VALIDAS:
+            analise["gravidade"] = "Moderada"
+
+        return RespostaIdentificacao(
+            status="sucesso",
+            arquivo=nome_cientifico,
+            analise_ia=analise,
+        )
+
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=422, detail=f"IA retornou resposta mal formatada: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Não foi possível processar: {str(e)}")
