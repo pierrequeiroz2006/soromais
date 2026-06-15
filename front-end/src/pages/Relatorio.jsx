@@ -33,6 +33,8 @@ export default function Relatorio() {
   
   const [mostrarDescricao, setMostrarDescricao] = useState(false)
   const [descricaoManual, setDescricaoManual] = useState('')
+  const [sugestoes, setSugestoes] = useState(null)
+  const [carregandoSugestoes, setCarregandoSugestoes] = useState(false)
 
   const [resultadoIa, setResultadoIa] = useState(() => {
     const salvo = sessionStorage.getItem('soromais_ia');
@@ -77,10 +79,9 @@ export default function Relatorio() {
           lugar: ia.lugar,
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
-          soro_correto: ia.soro_correto,
           gravidade: ia.gravidade,
         };
-        
+
         setResultadoIa(novoResultado);
         sessionStorage.setItem('soromais_ia', JSON.stringify(novoResultado));
         sessionStorage.setItem('soromais_preview', urlImagem);
@@ -102,6 +103,71 @@ export default function Relatorio() {
     
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
+    }
+  }
+
+  const handleSugerirEspecies = async () => {
+    if (!descricaoManual.trim()) return
+    setCarregandoSugestoes(true)
+
+    const formData = new FormData()
+    formData.append('descricao', descricaoManual)
+    if (coords) {
+      formData.append('lat', coords.latitude)
+      formData.append('lng', coords.longitude)
+    }
+    if (pontoReferencia) formData.append('ponto_ref', pontoReferencia)
+
+    try {
+      const resposta = await fetch('http://localhost:8000/sugerir-especies', {
+        method: 'POST',
+        body: formData,
+      })
+      const dados = await resposta.json()
+      setSugestoes(dados.sugestoes)
+      setMostrarDescricao(false)
+    } catch (erro) {
+      alert("Erro ao buscar sugestões: " + erro.message)
+    } finally {
+      setCarregandoSugestoes(false)
+    }
+  }
+
+  const handleSelecionarEspecie = async (especie) => {
+    setCarregandoSugestoes(true)
+    setSugestoes(null)
+
+    if (especie.imagem_url) {
+      setFotoPreview(especie.imagem_url)
+      sessionStorage.setItem('soromais_preview', especie.imagem_url)
+    }
+
+    const formData = new FormData()
+    formData.append('nome_cientifico', especie.nome_cientifico)
+
+    try {
+      const resposta = await fetch('http://localhost:8000/identificar-animal/por-nome', {
+        method: 'POST',
+        body: formData,
+      })
+      const dados = await resposta.json()
+      const ia = dados.analise_ia
+
+      if (ia) {
+        const novoResultado = {
+          especie: ia.especie,
+          lugar: ia.lugar,
+          efeitos: ia.efeitos,
+          tempo_de_acao: ia.tempo_de_acao,
+          gravidade: ia.gravidade,
+        }
+        setResultadoIa(novoResultado)
+        sessionStorage.setItem('soromais_ia', JSON.stringify(novoResultado))
+      }
+    } catch (erro) {
+      alert("Erro ao identificar espécie: " + erro.message)
+    } finally {
+      setCarregandoSugestoes(false)
     }
   }
 
@@ -188,10 +254,15 @@ export default function Relatorio() {
                       />
                       <button
                         type="button"
-                        className="mt-sm w-full flex items-center justify-center gap-xs border border-primary text-primary py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5"
+                        onClick={handleSugerirEspecies}
+                        disabled={carregandoSugestoes || !descricaoManual.trim()}
+                        className="mt-sm w-full flex items-center justify-center gap-xs border border-primary text-primary py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <span className="material-symbols-outlined text-[20px]">send</span>
-                        Identificar pelo texto
+                        {carregandoSugestoes
+                          ? <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>
+                          : <span className="material-symbols-outlined text-[20px]">send</span>
+                        }
+                        {carregandoSugestoes ? 'Buscando...' : 'Identificar pelo texto'}
                       </button>
                     </div>
                   )}
@@ -199,6 +270,57 @@ export default function Relatorio() {
             )}
           </div>
         </section>
+
+        {carregandoSugestoes && (
+          <section className="bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-sm flex flex-col items-center justify-center gap-sm py-xl">
+            <span className="material-symbols-outlined animate-spin text-primary text-4xl">sync</span>
+            <p className="font-body-md text-on-surface-variant">Buscando ...</p>
+          </section>
+        )}
+
+        {sugestoes && (
+          <section className="bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-sm">
+            <div className="flex items-center gap-xs mb-md">
+              <span className="material-symbols-outlined text-primary">help</span>
+              <h3 className="font-headline-sm text-headline-sm">Qual se parece mais?</h3>
+            </div>
+
+            <div className="grid grid-cols-2 gap-sm">
+              {sugestoes.map((especie, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleSelecionarEspecie(especie)}
+                  className="flex flex-col rounded-xl overflow-hidden border border-outline-variant bg-white active:scale-95 transition-transform shadow-sm text-left"
+                >
+                  {especie.imagem_url ? (
+                    <img
+                      src={especie.imagem_url}
+                      alt={especie.nome_popular}
+                      className="w-full h-32 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-32 bg-surface-container flex items-center justify-center">
+                      <span className="material-symbols-outlined text-on-surface-variant text-4xl">pest_control</span>
+                    </div>
+                  )}
+                  <div className="p-xs">
+                    <p className="font-label-lg text-on-surface font-semibold leading-tight">{especie.nome_popular}</p>
+                    <p className="font-body-sm text-on-surface-variant italic leading-tight">{especie.nome_cientifico}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => { setSugestoes(null); setMostrarDescricao(true) }}
+              className="mt-md w-full py-2 rounded-lg border border-outline-variant text-on-surface-variant font-semibold active:scale-95 transition-transform hover:bg-surface-container"
+            >
+              Nenhuma delas — tentar novamente
+            </button>
+          </section>
+        )}
 
         {animal && (
           <section className="bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-sm">
