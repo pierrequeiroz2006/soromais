@@ -1,5 +1,6 @@
 import json
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, Form, UploadFile
+from typing import Optional
 from google.genai import types
 from ..schemas.animal import RespostaIdentificacao
 from ..dependencies import gemini_client
@@ -12,10 +13,16 @@ _ANIMAL_SCHEMA = {
     "efeitos": "Principais sintomas e efeitos do veneno no corpo humano",
     "tempo_de_acao": "Tempo estimado para agravamento ou risco de morte sem socorro",
     "gravidade": "Nível de urgência: exatamente um de ['Baixa', 'Moderada', 'Alta', 'Extrema']",
+    "soro_correto": "Nome do soro antiveneno indicado para esta espécie",
 }
 
-_PROMPT = f"""Você é um especialista em animais peçonhentos do Brasil.
-Analise a imagem e retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.
+_GRAVIDADES_VALIDAS = {"Baixa", "Moderada", "Alta", "Extrema"}
+
+
+def _build_prompt(localizacao: str) -> str:
+    contexto_geo = f"\nLocalização do incidente: {localizacao}" if localizacao else ""
+    return f"""Você é um especialista em animais peçonhentos do Brasil.
+Analise a imagem e retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.{contexto_geo}
 
 Regras para os valores:
 - Sem emojis em nenhum campo
@@ -23,22 +30,29 @@ Regras para os valores:
 - O campo "efeitos" deve ser uma lista de 3 a 4 tópicos separados por '\\n', cada um começando com '- '
 - O campo "lugar" deve citar apenas regiões/biomas, sem detalhes extensos
 - O campo "tempo_de_acao" deve ser uma frase curta (ex: "Sintomas em 30min, risco de morte em 6-24h sem tratamento")
+- Use a localização do incidente (se fornecida) para priorizar espécies nativas dessa região
 
 O JSON deve ter exatamente estas chaves:
 {json.dumps(_ANIMAL_SCHEMA, ensure_ascii=False, indent=2)}
 """
 
-_GRAVIDADES_VALIDAS = {"Baixa", "Moderada", "Alta", "Extrema"}
-
 
 @router.post("", response_model=RespostaIdentificacao)
-async def identificar_animal(file: UploadFile = File(...)):
+async def identificar_animal(
+    file: UploadFile = File(...),
+    lat: Optional[float] = Form(None),
+    lng: Optional[float] = Form(None),
+    ponto_ref: Optional[str] = Form(None),
+):
     imagem_bytes = await file.read()
     mime_type = file.content_type or "image/jpeg"
 
+    localizacao = ponto_ref or (f"lat {lat}, lng {lng} (Brasil)" if lat and lng else "")
+    prompt = _build_prompt(localizacao)
+
     conteudo = [
         types.Part.from_bytes(data=imagem_bytes, mime_type=mime_type),
-        _PROMPT,
+        prompt,
     ]
 
     try:

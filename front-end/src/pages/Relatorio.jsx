@@ -31,6 +31,9 @@ export default function Relatorio() {
   const [carregando, setCarregando] = useState(false)
   const [fotoArquivo, setFotoArquivo] = useState(null)
   
+  const [mostrarDescricao, setMostrarDescricao] = useState(false)
+  const [descricaoManual, setDescricaoManual] = useState('')
+
   const [resultadoIa, setResultadoIa] = useState(() => {
     const salvo = sessionStorage.getItem('soromais_ia');
     return salvo ? JSON.parse(salvo) : null;
@@ -51,6 +54,13 @@ export default function Relatorio() {
 
     const formData = new FormData();
     formData.append('file', arquivo);
+    if (coords) {
+      formData.append('lat', coords.latitude);
+      formData.append('lng', coords.longitude);
+    }
+    if (pontoReferencia) {
+      formData.append('ponto_ref', pontoReferencia);
+    }
 
     try {
       const resposta = await fetch('http://localhost:8000/identificar-animal', {
@@ -140,7 +150,7 @@ export default function Relatorio() {
                 )}
               </div>
             ) : (
-              <div className="h-64 w-full bg-surface-container flex flex-col items-center justify-center gap-sm p-md">
+              <div className="min-h-64 w-full bg-surface-container flex flex-col items-center justify-center gap-sm p-md">
                 <span className="material-symbols-outlined text-primary text-5xl">photo_camera</span>
                 <h2 className="font-headline-md text-headline-md text-on-surface text-center">
                   Tire ou Envie uma Foto
@@ -156,9 +166,35 @@ export default function Relatorio() {
                   Enviar foto
                 </label>
 
-                <button type="button" className="text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 underline">
-                  Descrever animal manualmente
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setMostrarDescricao(prev => !prev)}
+                    className="text-primary px-lg py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5 underline"
+                  >
+                    {mostrarDescricao ? 'Cancelar' : 'Descrever animal manualmente'}
+                  </button>
+
+                  {mostrarDescricao && (
+                    <div className="w-full border-t border-outline-variant pt-md">
+                      <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
+                        Descreva o animal
+                      </label>
+                      <textarea
+                        value={descricaoManual}
+                        onChange={(e) => setDescricaoManual(e.target.value)}
+                        placeholder="Ex: Cobra escura com manchas amarelas, corpo grosso, cabeça triangular..."
+                        rows={4}
+                        className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none resize-y"
+                      />
+                      <button
+                        type="button"
+                        className="mt-sm w-full flex items-center justify-center gap-xs border border-primary text-primary py-2 rounded-lg font-semibold active:scale-95 transition-transform hover:bg-primary/5"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">send</span>
+                        Identificar pelo texto
+                      </button>
+                    </div>
+                  )}
               </div>
             )}
           </div>
