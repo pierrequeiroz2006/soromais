@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
+
+const API_URL = import.meta.env.VITE_API_URL
 import TopAppBar from '../components/TopAppBar'
 import BottomNav from '../components/BottomNav'
 import BottomSheet from '../components/BottomSheet'
@@ -16,7 +18,7 @@ export default function Relatorio() {
 
   useEffect(() => {
     if (status === "granted" && coords) {
-      fetch(`http://localhost:8000/relatorio/buscar-endereco?lat=${coords.latitude}&lng=${coords.longitude}`)
+      fetch(`${API_URL}/relatorio/buscar-endereco?lat=${coords.latitude}&lng=${coords.longitude}`)
         .then(res => res.json())
         .then(dados => {
           if (dados.endereco) {
@@ -65,7 +67,7 @@ export default function Relatorio() {
     }
 
     try {
-      const resposta = await fetch('http://localhost:8000/identificar-animal', {
+      const resposta = await fetch(`${API_URL}/identificar-animal`, {
         method: 'POST',
         body: formData,
       });
@@ -119,7 +121,7 @@ export default function Relatorio() {
     if (pontoReferencia) formData.append('ponto_ref', pontoReferencia)
 
     try {
-      const resposta = await fetch('http://localhost:8000/sugerir-especies', {
+      const resposta = await fetch(`${API_URL}/sugerir-especies`, {
         method: 'POST',
         body: formData,
       })
@@ -146,7 +148,7 @@ export default function Relatorio() {
     formData.append('nome_cientifico', especie.nome_cientifico)
 
     try {
-      const resposta = await fetch('http://localhost:8000/identificar-animal/por-nome', {
+      const resposta = await fetch(`${API_URL}/identificar-animal/por-nome`, {
         method: 'POST',
         body: formData,
       })
