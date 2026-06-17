@@ -37,4 +37,6 @@ with ThreadPoolExecutor(max_workers=2) as executor:
 rodar("parse_pdfs.py")
 rodar("final_json.py")
 
+(BASE.parent / "cnes.json").unlink(missing_ok=True)
+
 print("\n========== CONCLUÍDO ==========\n")
