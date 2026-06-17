@@ -36,3 +36,4 @@ back-end\scripts\pdfs
 
 #Arquivo Bruto
 *.csv
+*.json
