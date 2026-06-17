@@ -1,0 +1,30 @@
+import requests
+from pathlib import Path
+import zipfile
+
+#URL QUE SERÁ USADO COMO BASE PARA O DOWNLOAD DO CSV
+URL_BASE = "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip"
+
+BASE = Path(__file__).parent
+path_raw = BASE / "data/raw"
+path_raw.mkdir(parents=True, exist_ok=True)
+path_zip = path_raw / "cnes_estabelecimentos.zip"
+
+response = requests.get(URL_BASE, timeout=120)          #ACESSA E TENTA BAIXAR O PDF
+    
+if response.status_code == 200:                 
+        
+    with open(path_zip, "wb") as f:
+        f.write(response.content)
+
+    with zipfile.ZipFile(path_zip, 'r') as zip_ref:
+        zip_ref.extractall(path_raw)
+
+    path_zip.unlink()
+
+    print(f"✓ Tudo OK")
+        
+else:
+    print(f"✗ Error — status {response.status_code}")   #RETORNA O POSSÍVEL ERRO
+    
+
