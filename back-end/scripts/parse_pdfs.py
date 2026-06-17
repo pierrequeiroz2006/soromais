@@ -22,3 +22,5 @@ with pdfplumber.open("pdfs/paraiba.pdf") as pdf:
 
 with open('cnes.json', 'w', encoding='utf-8') as f:
     json.dump(cnes_list, f, ensure_ascii=False, indent=2)
+
+print(f"✓ {len(cnes_list)} registros extraídos")

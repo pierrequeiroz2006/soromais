@@ -22,9 +22,9 @@ if response.status_code == 200:
 
     path_zip.unlink()
 
-    print(f"✓ Tudo OK")
-        
+    print("✓ CSV baixado e extraído")
+
 else:
-    print(f"✗ Error — status {response.status_code}")   #RETORNA O POSSÍVEL ERRO
+    print(f"✗ Falha no download — status {response.status_code}")   #RETORNA O POSSÍVEL ERRO
     
 

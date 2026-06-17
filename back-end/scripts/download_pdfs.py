@@ -20,7 +20,7 @@ for estado in ESTADOS:
         
         with open(f"pdfs/{estado}.pdf", "wb") as f:   #SALVA EM ESCRITA BINÁRIA
             f.write(response.content)
-        print(f"✓ {estado.upper()}")
+        print(f"✓ {estado.upper()} baixado")
         
     else:
         print(f"✗ {estado.upper()} — status {response.status_code}")   #RETORNA O POSSÍVEL ERRO

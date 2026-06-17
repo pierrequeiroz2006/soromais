@@ -47,7 +47,7 @@ df_result.to_json(path_result
                   ,force_ascii=False
                   ,orient='records')
 
-print(f"JSON criado em {path_result}")
+print(f"✓ {len(df_result)} hospitais exportados")
 
 
 
