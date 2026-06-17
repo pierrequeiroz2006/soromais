@@ -4,7 +4,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-BASE = Path(__file__).parent
+BASE = Path(__file__).parent / "pipeline"
 ENV = {**os.environ, "PYTHONIOENCODING": "utf-8"}
 
 

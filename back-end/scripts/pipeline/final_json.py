@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-BASE = Path(__file__).parent
+BASE = Path(__file__).parent.parent
 
 path_csv = BASE / "data/raw/cnes_estabelecimentos.csv"
 path_json = BASE / "cnes.json"

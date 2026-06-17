@@ -2,9 +2,11 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class HospitalProximo(BaseModel):
+class Hospital(BaseModel):
+    cnes: str
     nome: str
-    endereco: str
-    lat: float
-    lng: float
-    aberto: Optional[bool] = None
+    endereco: Optional[str] = None
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None

@@ -5,7 +5,7 @@ import zipfile
 #URL QUE SERÁ USADO COMO BASE PARA O DOWNLOAD DO CSV
 URL_BASE = "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip"
 
-BASE = Path(__file__).parent
+BASE = Path(__file__).parent.parent
 path_raw = BASE / "data/raw"
 path_raw.mkdir(parents=True, exist_ok=True)
 path_zip = path_raw / "cnes_estabelecimentos.zip"

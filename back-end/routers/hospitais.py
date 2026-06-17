@@ -1,7 +1,7 @@
 import os
 import httpx
 from fastapi import APIRouter
-from ..schemas.hospital import HospitalProximo
+from ..schemas.hospital import Hospital
 from ..dependencies import supabase
 
 router = APIRouter(prefix="/hospitais", tags=["hospitais"])
@@ -13,7 +13,7 @@ def get_hospitais():
     return response.data
 
 
-@router.get("/proximos", response_model=list[HospitalProximo])
+@router.get("/proximos", response_model=list[Hospital])
 async def hospitais_proximos(lat: float, lng: float):
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     params = {
