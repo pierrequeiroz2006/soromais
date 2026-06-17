@@ -1,5 +1,5 @@
 export default function HospitalCard({ hospital, featured = false, variant = 'full' }) {
-  const { nome, endereco, distancia, tempo, telefone } = hospital
+  const { nome, endereco, distancia, tempo, telefone, lat, lng } = hospital
 
   if (variant === 'sheet') {
     return (
@@ -71,7 +71,7 @@ export default function HospitalCard({ hospital, featured = false, variant = 'fu
 
       <div className="flex gap-3">
         <a
-          href={`https://maps.google.com/?q=${encodeURIComponent(endereco)}`}
+          href={`https://maps.google.com/?q=${lat},${lng}`}
           target="_blank"
           rel="noreferrer"
           className="flex-1 h-[52px] bg-primary text-white rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
