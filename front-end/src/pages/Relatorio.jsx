@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL
 import TopAppBar from '../components/TopAppBar'
 import BottomNav from '../components/BottomNav'
 import BottomSheet from '../components/BottomSheet'
-import { useGeolocation } from '../hooks/useGeolocation'
+import { useGeolocalizacao } from '../context/GeolocalizacaoContext'
 import { useHospitais } from '../context/HospitaisContext'
 import MapaHospital from '../components/MapaHospital'
 
@@ -15,7 +15,7 @@ export default function Relatorio() {
     tempo: '', peso: '', idade: '',
   })
 
-  const { status, coords } = useGeolocation()
+  const { status, coords } = useGeolocalizacao()
   const { hospitais } = useHospitais()
   const hospitalMaisProximo = hospitais[0] ?? null
   const [pontoReferencia, setPontoReferencia] = useState('');
@@ -467,7 +467,7 @@ export default function Relatorio() {
               <h3 className="font-headline-sm text-headline-sm">Localização</h3>
             </div>
             <div className="space-y-sm">
-              <div className="h-48 w-full rounded-lg overflow-hidden border border-outline-variant mb-sm">
+              <div className="h-48 w-full rounded-lg overflow-hidden border border-outline-variant mb-sm relative z-0">
                 {hospitalMaisProximo
                   ? <MapaHospital lat={hospitalMaisProximo.lat} lng={hospitalMaisProximo.lng} nome={hospitalMaisProximo.nome} />
                   : <div className="w-full h-full bg-surface-container flex items-center justify-center">

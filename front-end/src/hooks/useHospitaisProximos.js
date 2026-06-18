@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useGeolocation } from './useGeolocation'
+import { useGeolocalizacao } from '../context/GeolocalizacaoContext'
 
 const API_URL = import.meta.env.VITE_API_URL
 
 export function useHospitaisProximos() {
-  const { coords, status: geoStatus } = useGeolocation()
+  const { coords, status: geoStatus } = useGeolocalizacao()
   const [hospitais, setHospitais] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
