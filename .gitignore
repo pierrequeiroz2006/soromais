@@ -32,4 +32,8 @@ back-end/scripts/pdfs/
 back-end\scripts\pdfs
 
 #Pycache
-__pycache__
+**/__pycache__/
+
+#Arquivo Bruto
+*.csv
+*.json

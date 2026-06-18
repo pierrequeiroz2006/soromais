@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
+
+const API_URL = import.meta.env.VITE_API_URL
 import TopAppBar from '../components/TopAppBar'
 import BottomNav from '../components/BottomNav'
 import BottomSheet from '../components/BottomSheet'
-import { useGeolocation } from '../hooks/useGeolocation'
+import { useGeolocalizacao } from '../context/GeolocalizacaoContext'
+import { useHospitais } from '../context/HospitaisContext'
+import MapaHospital from '../components/MapaHospital'
 
 export default function Relatorio() {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -11,12 +15,14 @@ export default function Relatorio() {
     tempo: '', peso: '', idade: '',
   })
 
-  const { status, coords } = useGeolocation();
+  const { status, coords } = useGeolocalizacao()
+  const { hospitais } = useHospitais()
+  const hospitalMaisProximo = hospitais[0] ?? null
   const [pontoReferencia, setPontoReferencia] = useState('');
 
   useEffect(() => {
     if (status === "granted" && coords) {
-      fetch(`http://localhost:8000/relatorio/buscar-endereco?lat=${coords.latitude}&lng=${coords.longitude}`)
+      fetch(`${API_URL}/relatorio/buscar-endereco?lat=${coords.latitude}&lng=${coords.longitude}`)
         .then(res => res.json())
         .then(dados => {
           if (dados.endereco) {
@@ -65,7 +71,7 @@ export default function Relatorio() {
     }
 
     try {
-      const resposta = await fetch('http://localhost:8000/identificar-animal', {
+      const resposta = await fetch(`${API_URL}/identificar-animal`, {
         method: 'POST',
         body: formData,
       });
@@ -119,7 +125,7 @@ export default function Relatorio() {
     if (pontoReferencia) formData.append('ponto_ref', pontoReferencia)
 
     try {
-      const resposta = await fetch('http://localhost:8000/sugerir-especies', {
+      const resposta = await fetch(`${API_URL}/sugerir-especies`, {
         method: 'POST',
         body: formData,
       })
@@ -146,7 +152,7 @@ export default function Relatorio() {
     formData.append('nome_cientifico', especie.nome_cientifico)
 
     try {
-      const resposta = await fetch('http://localhost:8000/identificar-animal/por-nome', {
+      const resposta = await fetch(`${API_URL}/identificar-animal/por-nome`, {
         method: 'POST',
         body: formData,
       })
@@ -455,49 +461,22 @@ export default function Relatorio() {
           </section>
 
           {/* Localização */}
-          <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm">
+          <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm self-start">
             <div className="flex items-center gap-xs mb-sm">
               <span className="material-symbols-outlined text-primary">location_on</span>
               <h3 className="font-headline-sm text-headline-sm">Localização</h3>
             </div>
             <div className="space-y-sm">
-              <div className="h-32 w-full bg-surface-container rounded-lg relative overflow-hidden border border-outline-variant mb-sm">
-                <img
-                  alt="Localização do acidente"
-                  className="w-full h-full object-cover opacity-80"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT5w71ZMalEMF7eH60U6vWkWdxVr7obAs2Lbtr1ni9lrFrIiYUmzyaD00iz1rUE5LMjjAyRChQsBum_n7y_muc2jo32WC-_ubPu0Epgf7G_-7_mBGZOE7GW-OjMp8W6VWak1JC7fhXj8msXIpjZMJERq_DdBHzHpb5eE0ffCJA_VbV_lkQGTF3b4za6BJUzQ5wp4c3Iqa7ykGT-u_JwmCwEijS0FOC_YzpgPmvE-EW_LSCBIduhkvWvVcH6EK8s1srkQlWnGIVrZld"
-                />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span
-                    className="material-symbols-outlined text-secondary text-3xl"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    location_on
-                  </span>
-                </div>
+              <div className="h-48 w-full rounded-lg overflow-hidden border border-outline-variant mb-sm relative z-0">
+                {hospitalMaisProximo
+                  ? <MapaHospital lat={hospitalMaisProximo.lat} lng={hospitalMaisProximo.lng} nome={hospitalMaisProximo.nome} />
+                  : <div className="w-full h-full bg-surface-container flex items-center justify-center">
+                      <span className="material-symbols-outlined text-on-surface-variant text-4xl">map</span>
+                    </div>
+                }
               </div>
               
-              {status === "loading" && (
-                <p className="font-body-md text-on-surface font-semibold animate-pulse">
-                  Buscando localização...
-                </p>
-              )}
 
-              {status === "granted" && coords && (
-                <>
-                  <p className="font-body-md text-on-surface font-semibold">
-                    Localização Detectada
-                  </p>
-                  {pontoReferencia && (
-                  <p className="font-body-sm text-primary font-medium mt-1">
-                  {pontoReferencia}
-                  </p>
-                  )}
-                  <p className="font-label-caps text-label-caps text-on-surface-variant">
-                    Lat: {coords.latitude.toFixed(4)}, Long: {coords.longitude.toFixed(4)}
-                  </p>
-                </>
-              )}
 
               {status === "denied" && (
                 <p className="text-sm text-error font-medium">
@@ -509,6 +488,34 @@ export default function Relatorio() {
                 <p className="text-sm text-error font-medium">
                   ❌ GPS não suportado ou indisponível neste navegador.
                 </p>
+              )}
+
+              {hospitalMaisProximo && (
+                <div className="border-t border-outline-variant pt-sm mt-sm">
+                  <p className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Hospital Mais Próximo</p>
+                  <p className="font-body-lg font-bold text-on-surface">{hospitalMaisProximo.nome}</p>
+                  {hospitalMaisProximo.endereco && (
+                    <p className="font-body-sm text-on-surface-variant mt-0.5">{hospitalMaisProximo.endereco}</p>
+                  )}
+                  <div className="flex gap-3 mt-sm">
+                    <a
+                      href={`https://maps.google.com/?q=${hospitalMaisProximo.lat},${hospitalMaisProximo.lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex-1 h-[44px] bg-primary text-white rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">directions</span>
+                      Rota
+                    </a>
+                    <a
+                      href={`tel:${hospitalMaisProximo.telefone}`}
+                      className="flex-1 h-[44px] border-2 border-primary text-primary rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">call</span>
+                      Ligar
+                    </a>
+                  </div>
+                </div>
               )}
             </div>
           </section>
