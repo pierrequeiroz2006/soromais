@@ -86,6 +86,7 @@ export default function Relatorio() {
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
           gravidade: ia.gravidade,
+          foto_url: dados.foto_url,
         };
 
         setResultadoIa(novoResultado);
@@ -182,6 +183,23 @@ export default function Relatorio() {
   }
 
   const animal = resultadoIa
+
+  const dadosRelatorio = {
+    nome: form.nome || null,
+    idade: form.idade ? Number(form.idade) : null,
+    peso: form.peso ? Number(form.peso) : null,
+    estado: form.estado || null,
+    localPicada: form.localPicada || null,
+    tempo: form.tempo ? Number(form.tempo) : null,
+    localizacao: pontoReferencia || null,
+    animal: animal?.especie || null,
+    especie: animal?.especie || null,
+    lugar: animal?.lugar || null,
+    efeitos: animal?.efeitos || null,
+    tempo_de_acao: animal?.tempo_de_acao || null,
+    gravidade: animal?.gravidade || null,
+    foto_url: animal?.foto_url || null,
+  }
 
   return (
     <>
@@ -533,7 +551,7 @@ export default function Relatorio() {
           </section>
         </div>
       </main>
-      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} dadosRelatorio={dadosRelatorio} />
       <BottomNav />
     </>
   )
