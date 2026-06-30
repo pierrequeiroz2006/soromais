@@ -193,7 +193,7 @@ export default function Relatorio() {
     estado: form.estado || null,
     localPicada: form.localPicada || null,
     tempo: form.tempo ? Number(form.tempo) : null,
-    localizacao: pontoReferencia || null,
+    localizacao: pontoReferencia || (coords ? `${coords.latitude}, ${coords.longitude}` : null),
     animal: animal?.especie || null,
     especie: animal?.especie || null,
     lugar: animal?.lugar || null,
