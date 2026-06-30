@@ -15,7 +15,6 @@ class DadosRelatorio(BaseModel):
     nome_local: Optional[str] = None
     urbano_rural: Optional[str] = None
 
-
 class DadosWhatsApp(BaseModel):
     hospital_id: UUID
     nome: Optional[str] = None
@@ -26,3 +25,9 @@ class DadosWhatsApp(BaseModel):
     localPicada: Optional[str] = None
     tempo: Optional[int] = None
     localizacao: Optional[str] = None
+    especie: Optional[str] = None
+    lugar: Optional[str] = None
+    efeitos: Optional[str] = None
+    tempo_de_acao: Optional[str] = None
+    gravidade: Optional[str] = None
+    foto_url: Optional[str] = None

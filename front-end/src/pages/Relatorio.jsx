@@ -86,6 +86,7 @@ export default function Relatorio() {
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
           gravidade: ia.gravidade,
+          foto_url: dados.foto_url,
         };
 
         setResultadoIa(novoResultado);
@@ -182,6 +183,23 @@ export default function Relatorio() {
   }
 
   const animal = resultadoIa
+
+  const dadosRelatorio = {
+    nome: form.nome || null,
+    idade: form.idade ? Number(form.idade) : null,
+    peso: form.peso ? Number(form.peso) : null,
+    estado: form.estado || null,
+    localPicada: form.localPicada || null,
+    tempo: form.tempo ? Number(form.tempo) : null,
+    localizacao: pontoReferencia || null,
+    animal: animal?.especie || null,
+    especie: animal?.especie || null,
+    lugar: animal?.lugar || null,
+    efeitos: animal?.efeitos || null,
+    tempo_de_acao: animal?.tempo_de_acao || null,
+    gravidade: animal?.gravidade || null,
+    foto_url: animal?.foto_url || null,
+  }
 
   return (
     <>
@@ -455,7 +473,7 @@ export default function Relatorio() {
               </div>
               <button className="w-full flex items-center justify-center gap-xs bg-primary text-on-primary py-2 rounded-lg font-semibold mt-2 active:scale-95 transition-transform">
                 <span className="material-symbols-outlined text-[20px]">save</span>
-                Salvar Dados
+                Salvar
               </button>
             </div>
           </section>
@@ -515,32 +533,25 @@ export default function Relatorio() {
                       Ligar
                     </a>
                   </div>
+                  <button
+                    onClick={() => animal && setSheetOpen(true)}
+                    disabled={!animal}
+                    className={`w-full h-[36px] mt-2 flex items-center justify-center gap-2 rounded-xl font-bold text-sm active:scale-95 transition-transform
+                      ${animal
+                        ? 'bg-primary text-on-primary cursor-pointer'
+                        : 'bg-outline-variant text-on-surface-variant cursor-not-allowed'
+                      }`}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">share</span>
+                    Compartilhar
+                  </button>
                 </div>
               )}
             </div>
           </section>
         </div>
       </main>
-
-      {/* Botão fixo com template literals corrigido */}
-      <button
-        onClick={() => animal && setSheetOpen(true)}
-        disabled={!animal}
-        className={`fixed left-0 right-0 z-40 mx-container-margin
-          w-[calc(100%-2*20px)] bottom-20
-          flex items-center justify-center gap-md
-          py-md rounded-xl font-headline-sm text-headline-sm shadow-sm
-          active:scale-95 transition-transform
-          ${animal
-            ? 'bg-primary text-on-primary cursor-pointer'
-            : 'bg-outline-variant text-on-surface-variant cursor-not-allowed'
-          }`}
-      >
-        <span className="material-symbols-outlined">share</span>
-        COMPARTILHAR RELATÓRIO
-      </button>
-
-      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} dadosRelatorio={dadosRelatorio} />
       <BottomNav />
     </>
   )

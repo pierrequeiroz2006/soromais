@@ -3,7 +3,8 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from typing import Optional
 from google.genai import types
 from ..schemas.animal import RespostaIdentificacao
-from ..dependencies import gemini_client
+from ..dependencies import gemini_client, supabase
+import uuid
 
 router = APIRouter(prefix="/identificar-animal", tags=["identificacao"])
 
@@ -46,6 +47,13 @@ async def identificar_animal(
     imagem_bytes = await file.read()
     mime_type = file.content_type or "image/jpeg"
 
+    extensao = mime_type.split("/")[-1] or "jpg"
+    nome_arquivo = f"{uuid.uuid4()}.{extensao}"
+    supabase.storage.from_("fotos-animais").upload(
+        nome_arquivo, imagem_bytes, {"content-type": mime_type}
+    )
+    foto_url = supabase.storage.from_("fotos-animais").get_public_url(nome_arquivo)
+
     localizacao = ponto_ref or (f"lat {lat}, lng {lng} (Brasil)" if lat and lng else "")
     prompt = _build_prompt(localizacao)
 
@@ -75,6 +83,7 @@ async def identificar_animal(
             status="sucesso",
             arquivo=file.filename,
             analise_ia=analise,
+            foto_url=foto_url,
         )
 
     except json.JSONDecodeError as e:

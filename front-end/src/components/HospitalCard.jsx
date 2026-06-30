@@ -1,5 +1,39 @@
-export default function HospitalCard({ hospital, featured = false, variant = 'full' }) {
-  const { nome, endereco, distancia, tempo, telefone, lat, lng } = hospital
+import { useState } from 'react'
+
+const API_URL = import.meta.env.VITE_API_URL
+
+export default function HospitalCard({ hospital, featured = false, variant = 'full', dadosRelatorio, onEnviado }) {
+  const { id, nome, endereco, distancia, tempo, telefone, lat, lng } = hospital
+  const [enviando, setEnviando] = useState(false)
+  const [erro, setErro] = useState(null)
+  const [enviado, setEnviado] = useState(false)
+
+  const handleEnviar = async () => {
+    if (!id) {
+      setErro('Hospital sem ID')
+      return
+    }
+    setEnviando(true)
+    setErro(null)
+    try {
+      const resposta = await fetch(`${API_URL}/enviar-whatsapp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hospital_id: id, ...dadosRelatorio }),
+      })
+      const dados = await resposta.json()
+      if (!resposta.ok || dados.erro) {
+        setErro(dados.erro || dados.detail || 'Erro ao enviar')
+      } else {
+        setEnviado(true)
+        if (onEnviado) onEnviado()
+      }
+    } catch (e) {
+      setErro(e.message)
+    } finally {
+      setEnviando(false)
+    }
+  }
 
   if (variant === 'sheet') {
     return (
@@ -21,25 +55,25 @@ export default function HospitalCard({ hospital, featured = false, variant = 'fu
               {distancia}
             </span>
           )}
+          {erro && <span className="text-error text-[11px] mt-1">{erro}</span>}
         </div>
-        <button className={`px-lg py-sm rounded-full font-label-caps text-label-caps active:scale-95 transition-all
+        <button
+          onClick={handleEnviar}
+          disabled={enviando || enviado}
+          className={`px-lg py-sm rounded-full font-label-caps text-label-caps active:scale-95 transition-all
           ${featured
             ? 'bg-primary text-on-primary shadow-sm hover:brightness-110'
             : 'border border-primary text-primary hover:bg-primary/5'
-          }`}
+          } ${(enviando || enviado) ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
-          ENVIAR
+          {enviado ? 'ENVIADO' : enviando ? 'ENVIANDO...' : 'ENVIAR'}
         </button>
       </div>
     )
   }
-
   return (
     <div className={`bg-white rounded-xl p-md shadow-sm
-      ${featured
-        ? 'border-2 border-primary'
-        : 'border border-outline-variant'
-      }`}
+      ${featured ? 'border-2 border-primary' : 'border border-outline-variant'}`}
     >
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
@@ -58,31 +92,18 @@ export default function HospitalCard({ hospital, featured = false, variant = 'fu
           <div className="text-sm font-semibold text-on-surface-variant">{tempo}</div>
         </div>
       </div>
-
       <div className="flex items-center gap-1.5 mb-md bg-secondary-container/30 w-fit px-3 py-1 rounded-lg">
-        <span
-          className="material-symbols-outlined text-primary text-lg"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-        >
+        <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
           verified
         </span>
         <span className="text-sm font-bold text-primary">Soro disponível</span>
       </div>
-
       <div className="flex gap-3">
-        <a
-          href={`https://maps.google.com/?q=${lat},${lng}`}
-          target="_blank"
-          rel="noreferrer"
-          className="flex-1 h-[52px] bg-primary text-white rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
-        >
+        <a href={`https://maps.google.com/?q=${lat},${lng}`} target="_blank" rel="noreferrer" className="flex-1 h-[52px] bg-primary text-white rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform">
           <span className="material-symbols-outlined">directions</span>
           Rota
         </a>
-        <a
-          href={`tel:${telefone}`}
-          className="flex-1 h-[52px] border-2 border-primary text-primary rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
-        >
+        <a href={`tel:${telefone}`} className="flex-1 h-[52px] border-2 border-primary text-primary rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform">
           <span className="material-symbols-outlined">call</span>
           Ligar
         </a>

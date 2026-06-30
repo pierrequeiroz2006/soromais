@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from typing import Literal
-
+from typing import Literal, Optional
 
 class AnaliseAnimal(BaseModel):
     especie: str
@@ -9,8 +8,8 @@ class AnaliseAnimal(BaseModel):
     tempo_de_acao: str
     gravidade: Literal["Baixa", "Moderada", "Alta", "Extrema"]
 
-
 class RespostaIdentificacao(BaseModel):
     status: str
     arquivo: str
     analise_ia: AnaliseAnimal
+    foto_url: Optional[str] = None
