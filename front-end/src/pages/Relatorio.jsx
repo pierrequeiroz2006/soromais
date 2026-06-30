@@ -10,9 +10,9 @@ import MapaHospital from '../components/MapaHospital'
 
 export default function Relatorio() {
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [form, setForm] = useState({
-    nome: '', estado: '', localPicada: '',
-    tempo: '', peso: '', idade: '',
+  const [form, setForm] = useState(() => {
+    const salvo = sessionStorage.getItem('soromais_form')
+    return salvo ? JSON.parse(salvo) : { nome: '', estado: '', localPicada: '', tempo: '', peso: '', idade: '' }
   })
 
   const { status, coords } = useGeolocalizacao()
@@ -104,9 +104,11 @@ export default function Relatorio() {
   const handleRemoveFile = () => {
     setFotoArquivo(null)
     setFotoPreview(null)
-    setResultadoIa(null) 
+    setResultadoIa(null)
+    setForm({ nome: '', estado: '', localPicada: '', tempo: '', peso: '', idade: '' })
     sessionStorage.removeItem('soromais_ia')
     sessionStorage.removeItem('soromais_preview')
+    sessionStorage.removeItem('soromais_form')
     
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
@@ -471,7 +473,10 @@ export default function Relatorio() {
                   />
                 </div>
               </div>
-              <button className="w-full flex items-center justify-center gap-xs bg-primary text-on-primary py-2 rounded-lg font-semibold mt-2 active:scale-95 transition-transform">
+              <button
+                onClick={() => sessionStorage.setItem('soromais_form', JSON.stringify(form))}
+                className="w-full flex items-center justify-center gap-xs bg-primary text-on-primary py-2 rounded-lg font-semibold mt-2 active:scale-95 transition-transform"
+              >
                 <span className="material-symbols-outlined text-[20px]">save</span>
                 Salvar
               </button>
