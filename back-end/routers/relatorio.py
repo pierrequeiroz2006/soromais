@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from ..schemas.relatorio import DadosRelatorio
-from ..dependencies import supabase
-from ..services.location import obter_endereco_por_coordenadas 
+from schemas.relatorio import DadosRelatorio
+from dependencies import supabase
+from services.location import obter_endereco_por_coordenadas 
 
 router = APIRouter(prefix="/relatorio", tags=["relatorio"])
 

@@ -2,8 +2,8 @@ import json
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from typing import Optional
 from google.genai import types
-from ..schemas.animal import RespostaIdentificacao
-from ..dependencies import gemini_client, supabase
+from schemas.animal import RespostaIdentificacao
+from dependencies import gemini_client, supabase
 import uuid
 
 router = APIRouter(prefix="/identificar-animal", tags=["identificacao"])

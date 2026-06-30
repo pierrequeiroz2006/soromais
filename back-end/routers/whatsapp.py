@@ -2,9 +2,9 @@ import os
 import uuid
 from fastapi import APIRouter
 from twilio.rest import Client
-from ..schemas.relatorio import DadosWhatsApp
-from ..dependencies import supabase
-from ..services.pdf_relatorio import gerar_pdf_relatorio
+from schemas.relatorio import DadosWhatsApp
+from dependencies import supabase
+from services.pdf_relatorio import gerar_pdf_relatorio
 
 router = APIRouter(prefix="/enviar-whatsapp", tags=["notificacao"])
 

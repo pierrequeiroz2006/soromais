@@ -2,9 +2,9 @@ import json
 import asyncio
 from fastapi import APIRouter, Form, HTTPException
 from typing import Optional
-from ..dependencies import gemini_client
-from ..schemas.sugestao import EspecieSugerida, RespostaSugestao
-from ..services.wikimedia import buscar_imagem_especie
+from dependencies import gemini_client
+from schemas.sugestao import EspecieSugerida, RespostaSugestao
+from services.wikimedia import buscar_imagem_especie
 
 router = APIRouter(prefix="/sugerir-especies", tags=["sugestoes"])
 

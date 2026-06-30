@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from ..schemas.hospital import Hospital
-from ..dependencies import supabase
+from schemas.hospital import Hospital
+from dependencies import supabase
 
 router = APIRouter(prefix="/hospitais", tags=["hospitais"])
 
