@@ -1,6 +1,6 @@
 import requests
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.lib import colors
@@ -35,7 +35,9 @@ def gerar_pdf_relatorio(dados, hospital_nome: str) -> bytes:
 
     elementos = []
     elementos.append(Paragraph("RELATÓRIO DE ACIDENTE - SOROMAIS", titulo_style))
-    elementos.append(Paragraph(f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}", normal))
+    fuso_brasil = timezone(timedelta(hours=-3))
+    agora_brasil = datetime.now(fuso_brasil)
+    elementos.append(Paragraph(f"Gerado em: {agora_brasil.strftime('%d/%m/%Y %H:%M')}", normal))
     elementos.append(Paragraph(f"Hospital de destino: {hospital_nome}", normal))
     elementos.append(Spacer(1, 0.5 * cm))
 
