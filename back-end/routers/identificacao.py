@@ -9,7 +9,7 @@ import uuid
 router = APIRouter(prefix="/identificar-animal", tags=["identificacao"])
 
 _ANIMAL_SCHEMA = {
-    "especie": "Nome popular e científico (ex: Escorpião-amarelo / Tityus serrulatus)",
+    "especie": "Nome popular (ex: Escorpião-amarelo)",
     "lugar": "Regiões do país e habitats comuns onde é encontrado",
     "efeitos": "Principais sintomas e efeitos do veneno no corpo humano",
     "tempo_de_acao": "Tempo estimado para agravamento ou risco de morte sem socorro",
@@ -93,9 +93,9 @@ async def identificar_animal(
 
 
 @router.post("/por-nome", response_model=RespostaIdentificacao)
-async def identificar_por_nome(nome_cientifico: str = Form(...)):
+async def identificar_por_nome(nome_animal: str = Form(...)):
     prompt = f"""Você é um especialista em animais peçonhentos do Brasil.
-A espécie é "{nome_cientifico}". Retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.
+A espécie é "{nome_animal}". Retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.
 
 Regras para os valores:
 - Sem emojis em nenhum campo
@@ -127,7 +127,7 @@ O JSON deve ter exatamente estas chaves:
 
         return RespostaIdentificacao(
             status="sucesso",
-            arquivo=nome_cientifico,
+            arquivo=nome_animal,
             analise_ia=analise,
         )
 

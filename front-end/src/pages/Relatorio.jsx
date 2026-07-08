@@ -12,7 +12,7 @@ export default function Relatorio() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [form, setForm] = useState(() => {
     const salvo = sessionStorage.getItem('soromais_form')
-    return salvo ? JSON.parse(salvo) : { nome: '', estado: '', localPicada: '', tempo: '', peso: '', idade: '' }
+    return salvo ? JSON.parse(salvo) : { nome: '' }
   })
 
   const { status, coords } = useGeolocalizacao()
@@ -105,7 +105,7 @@ export default function Relatorio() {
     setFotoArquivo(null)
     setFotoPreview(null)
     setResultadoIa(null)
-    setForm({ nome: '', estado: '', localPicada: '', tempo: '', peso: '', idade: '' })
+    setForm({ nome: '' })
     sessionStorage.removeItem('soromais_ia')
     sessionStorage.removeItem('soromais_preview')
     sessionStorage.removeItem('soromais_form')
@@ -188,13 +188,7 @@ export default function Relatorio() {
 
   const dadosRelatorio = {
     nome: form.nome || null,
-    idade: form.idade ? Number(form.idade) : null,
-    peso: form.peso ? Number(form.peso) : null,
-    estado: form.estado || null,
-    localPicada: form.localPicada || null,
-    tempo: form.tempo ? Number(form.tempo) : null,
     localizacao: pontoReferencia || (coords ? `${coords.latitude}, ${coords.longitude}` : null),
-    animal: animal?.especie || null,
     especie: animal?.especie || null,
     lugar: animal?.lugar || null,
     efeitos: animal?.efeitos || null,
@@ -389,172 +383,104 @@ export default function Relatorio() {
           </section>
         )}
         
-        {/* Grid Dados + Localização */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-
-          {/* Dados da Vítima */}
-          <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm">
-            <div className="flex items-center gap-xs mb-sm">
-              <span className="material-symbols-outlined text-primary">person</span>
-              <h3 className="font-headline-sm text-headline-sm">Dados da Vítima</h3>
+        {/* Dados da Vítima */}
+        <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm">
+          <div className="flex items-center gap-xs mb-sm">
+            <span className="material-symbols-outlined text-primary">person</span>
+            <h3 className="font-headline-sm text-headline-sm">Identificação</h3>
+          </div>
+          <div className="space-y-sm">
+            <div>
+              <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
+                NOME
+              </label>
+              <input
+                name="nome"
+                value={form.nome}
+                onChange={handleChange}
+                placeholder="Nome"
+                className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-2 py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none"
+              />
             </div>
-            <div className="space-y-sm">
-              <div>
-                <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
-                  TEMPO DECORRIDO
-                </label>
-                <input
-                  name="tempo"
-                  value={form.tempo}
-                  onChange={handleChange}
-                  placeholder="Ex: 45 min"
-                  className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
-                  LOCAL DA PICADA
-                </label>
-                <input
-                  name="localPicada" 
-                  value={form.localPicada}
-                  onChange={handleChange}
-                  placeholder="Ex: Tornozelo direito"
-                  className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
-                  ESTADO
-                </label>
-                <input
-                  name="estado"
-                  value={form.estado}
-                  onChange={handleChange}
-                  placeholder="Ex: Consciente, dor aguda"
-                  className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-xs">
-                <div>
-                  <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
-                    PESO
-                  </label>
-                  <input
-                    name="peso"
-                    value={form.peso}
-                    onChange={handleChange}
-                    placeholder="-- kg"
-                    className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-2 py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
-                    IDADE
-                  </label>
-                  <input
-                    name="idade"
-                    value={form.idade}
-                    onChange={handleChange}
-                    placeholder="-- anos"
-                    className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-2 py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 block">
-                    NOME
-                  </label>
-                  <input
-                    name="nome"
-                    value={form.nome}
-                    onChange={handleChange}
-                    placeholder="Nome"
-                    className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-2 py-2 font-body-lg text-on-surface focus:border-primary focus:outline-none"
-                  />
-                </div>
-              </div>
-              <button
-                onClick={() => sessionStorage.setItem('soromais_form', JSON.stringify(form))}
-                className="w-full flex items-center justify-center gap-xs bg-primary text-on-primary py-2 rounded-lg font-semibold mt-2 active:scale-95 transition-transform"
-              >
-                <span className="material-symbols-outlined text-[20px]">save</span>
-                Salvar
-              </button>
-            </div>
-          </section>
+            <button
+              onClick={() => sessionStorage.setItem('soromais_form', JSON.stringify(form))}
+              className="w-full flex items-center justify-center gap-xs bg-primary text-on-primary py-2 rounded-lg font-semibold mt-2 active:scale-95 transition-transform"
+            >
+              <span className="material-symbols-outlined text-[20px]">save</span>
+              Salvar
+            </button>
+          </div>
+        </section>
 
-          {/* Localização */}
-          <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm self-start">
-            <div className="flex items-center gap-xs mb-sm">
-              <span className="material-symbols-outlined text-primary">location_on</span>
-              <h3 className="font-headline-sm text-headline-sm">Localização</h3>
-            </div>
-            <div className="space-y-sm">
-              <div className="h-48 w-full rounded-lg overflow-hidden border border-outline-variant mb-sm relative z-0">
-                {hospitalMaisProximo
-                  ? <MapaHospital lat={hospitalMaisProximo.lat} lng={hospitalMaisProximo.lng} nome={hospitalMaisProximo.nome} />
-                  : <div className="w-full h-full bg-surface-container flex items-center justify-center">
-                      <span className="material-symbols-outlined text-on-surface-variant text-4xl">map</span>
-                    </div>
-                }
-              </div>
-              
-
-
-              {status === "denied" && (
-                <p className="text-sm text-error font-medium">
-                  ❌ Permissão de GPS negada pelo usuário.
-                </p>
-              )}
-
-              {status === "error" && (
-                <p className="text-sm text-error font-medium">
-                  ❌ GPS não suportado ou indisponível neste navegador.
-                </p>
-              )}
-
-              {hospitalMaisProximo && (
-                <div className="border-t border-outline-variant pt-sm mt-sm">
-                  <p className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Hospital Mais Próximo</p>
-                  <p className="font-body-lg font-bold text-on-surface">{hospitalMaisProximo.nome}</p>
-                  {hospitalMaisProximo.endereco && (
-                    <p className="font-body-sm text-on-surface-variant mt-0.5">{hospitalMaisProximo.endereco}</p>
-                  )}
-                  <div className="flex gap-3 mt-sm">
-                    <a
-                      href={`https://maps.google.com/?q=${hospitalMaisProximo.lat},${hospitalMaisProximo.lng}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex-1 h-[44px] bg-primary text-white rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">directions</span>
-                      Rota
-                    </a>
-                    <a
-                      href={`tel:${hospitalMaisProximo.telefone}`}
-                      className="flex-1 h-[44px] border-2 border-primary text-primary rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">call</span>
-                      Ligar
-                    </a>
+        {/* Localização */}
+        <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm">
+          <div className="flex items-center gap-xs mb-sm">
+            <span className="material-symbols-outlined text-primary">location_on</span>
+            <h3 className="font-headline-sm text-headline-sm">Localização</h3>
+          </div>
+          <div className="space-y-sm">
+            <div className="h-48 w-full rounded-lg overflow-hidden border border-outline-variant mb-sm relative z-0">
+              {hospitalMaisProximo
+                ? <MapaHospital lat={hospitalMaisProximo.lat} lng={hospitalMaisProximo.lng} nome={hospitalMaisProximo.nome} />
+                : <div className="w-full h-full bg-surface-container flex items-center justify-center">
+                    <span className="material-symbols-outlined text-on-surface-variant text-4xl">map</span>
                   </div>
-                  <button
-                    onClick={() => animal && setSheetOpen(true)}
-                    disabled={!animal}
-                    className={`w-full h-[36px] mt-2 flex items-center justify-center gap-2 rounded-xl font-bold text-sm active:scale-95 transition-transform
-                      ${animal
-                        ? 'bg-primary text-on-primary cursor-pointer'
-                        : 'bg-outline-variant text-on-surface-variant cursor-not-allowed'
-                      }`}
-                  >
-                    <span className="material-symbols-outlined text-[16px]">share</span>
-                    Compartilhar
-                  </button>
-                </div>
-              )}
+              }
             </div>
-          </section>
-        </div>
+
+            {status === "denied" && (
+              <p className="text-sm text-error font-medium">
+                ❌ Permissão de GPS negada pelo usuário.
+              </p>
+            )}
+
+            {status === "error" && (
+              <p className="text-sm text-error font-medium">
+                ❌ GPS não suportado ou indisponível neste navegador.
+              </p>
+            )}
+
+            {hospitalMaisProximo && (
+              <div className="border-t border-outline-variant pt-sm mt-sm">
+                <p className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Hospital Mais Próximo</p>
+                <p className="font-body-lg font-bold text-on-surface">{hospitalMaisProximo.nome}</p>
+                {hospitalMaisProximo.endereco && (
+                  <p className="font-body-sm text-on-surface-variant mt-0.5">{hospitalMaisProximo.endereco}</p>
+                )}
+                <div className="flex gap-3 mt-sm">
+                  <a
+                    href={`https://maps.google.com/?q=${hospitalMaisProximo.lat},${hospitalMaisProximo.lng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 h-[44px] bg-primary text-white rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">directions</span>
+                    Rota
+                  </a>
+                  <a
+                    href={`tel:${hospitalMaisProximo.telefone}`}
+                    className="flex-1 h-[44px] border-2 border-primary text-primary rounded-xl font-bold flex justify-center items-center gap-2 active:scale-95 transition-transform"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">call</span>
+                    Ligar
+                  </a>
+                </div>
+                <button
+                  onClick={() => animal && setSheetOpen(true)}
+                  disabled={!animal}
+                  className={`w-full h-[36px] mt-2 flex items-center justify-center gap-2 rounded-xl font-bold text-sm active:scale-95 transition-transform
+                    ${animal
+                      ? 'bg-primary text-on-primary cursor-pointer'
+                      : 'bg-outline-variant text-on-surface-variant cursor-not-allowed'
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">share</span>
+                  Compartilhar
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} dadosRelatorio={dadosRelatorio} />
       <BottomNav />
