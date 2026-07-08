@@ -86,6 +86,7 @@ export default function Relatorio() {
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
           gravidade: ia.gravidade,
+          o_que_fazer: ia.o_que_fazer,
           foto_url: dados.foto_url,
         };
 
@@ -169,6 +170,7 @@ export default function Relatorio() {
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
           gravidade: ia.gravidade,
+          o_que_fazer: ia.o_que_fazer,
         }
         setResultadoIa(novoResultado)
         sessionStorage.setItem('soromais_ia', JSON.stringify(novoResultado))
@@ -382,7 +384,25 @@ export default function Relatorio() {
             </ul>
           </section>
         )}
-        
+
+        {animal?.o_que_fazer && (
+          <section className="bg-secondary-container/40 border border-secondary/30 rounded-xl p-md">
+            <div className="flex items-center gap-xs mb-sm">
+              <span className="material-symbols-outlined text-secondary">medical_services</span>
+              <h3 className="font-headline-sm text-headline-sm text-secondary">
+                O que fazer?
+              </h3>
+            </div>
+            <ul className="space-y-1">
+              {animal.o_que_fazer.split('\n').filter(Boolean).map((item, i) => (
+                <li key={i} className="font-body-md text-on-secondary-container flex gap-2">
+                  <span>•</span><span>{item.replace(/^-\s*/, '')}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {/* Dados da Vítima */}
         <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm">
           <div className="flex items-center gap-xs mb-sm">

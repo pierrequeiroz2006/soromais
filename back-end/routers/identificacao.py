@@ -14,6 +14,7 @@ _ANIMAL_SCHEMA = {
     "efeitos": "Principais sintomas e efeitos do veneno no corpo humano",
     "tempo_de_acao": "Tempo estimado para agravamento ou risco de morte sem socorro",
     "gravidade": "Nível de urgência: exatamente um de ['Baixa', 'Moderada', 'Alta', 'Extrema']",
+    "o_que_fazer": "Primeiros socorros específicos para esse animal, do momento da picada/ataque até a chegada ao hospital",
 }
 
 _GRAVIDADES_VALIDAS = {"Baixa", "Moderada", "Alta", "Extrema"}
@@ -30,6 +31,7 @@ Regras para os valores:
 - O campo "efeitos" deve ser uma lista de 3 a 4 tópicos separados por '\\n', cada um começando com '- '
 - O campo "lugar" deve citar apenas regiões/biomas, sem detalhes extensos
 - O campo "tempo_de_acao" deve ser uma frase curta (ex: "Sintomas em 30min, risco de morte em 6-24h sem tratamento")
+- O campo "o_que_fazer" deve ser uma lista de 4 a 5 tópicos separados por '\\n', cada um começando com '- ', com condutas de primeiros socorros ESPECÍFICAS para esse animal (ex: se for cobra peçonhenta, orientar a manter o membro imobilizado e abaixo do nível do coração; se for aranha ou escorpião, orientar compressa fria; NUNCA sugerir torniquete, sucção, cortes ou remédios caseiros). A foto do animal já foi enviada e a espécie já foi identificada — NUNCA inclua orientações como "tire uma foto do animal" ou "fotografe o animal para identificação"
 - Use a localização do incidente (se fornecida) para priorizar espécies nativas dessa região
 
 O JSON deve ter exatamente estas chaves:
@@ -103,6 +105,7 @@ Regras para os valores:
 - O campo "efeitos" deve ser uma lista de 3 a 4 tópicos separados por '\\n', cada um começando com '- '
 - O campo "lugar" deve citar apenas regiões/biomas, sem detalhes extensos
 - O campo "tempo_de_acao" deve ser uma frase curta (ex: "Sintomas em 30min, risco de morte em 6-24h sem tratamento")
+- O campo "o_que_fazer" deve ser uma lista de 4 a 5 tópicos separados por '\\n', cada um começando com '- ', com condutas de primeiros socorros ESPECÍFICAS para esse animal (ex: se for cobra peçonhenta, orientar a manter o membro imobilizado e abaixo do nível do coração; se for aranha ou escorpião, orientar compressa fria; NUNCA sugerir torniquete, sucção, cortes ou remédios caseiros). A foto do animal já foi enviada e a espécie já foi identificada — NUNCA inclua orientações como "tire uma foto do animal" ou "fotografe o animal para identificação"
 
 O JSON deve ter exatamente estas chaves:
 {json.dumps(_ANIMAL_SCHEMA, ensure_ascii=False, indent=2)}
