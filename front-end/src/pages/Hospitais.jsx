@@ -4,7 +4,7 @@ import HospitalCard from '../components/HospitalCard'
 import { useHospitais } from '../context/HospitaisContext'
 
 export default function Hospitais() {
-  const { hospitais, loading, geoStatus, requestLocation } = useHospitais()
+  const { hospitais, loading, geoStatus, requestLocation, canRetry } = useHospitais()
 
   return (
     <>
@@ -39,14 +39,22 @@ export default function Hospitais() {
 
         {geoStatus === 'denied' && (
           <div className="text-error font-medium space-y-1">
-            <p>Permissão de localização negada. Ative a localização para este site nas configurações do navegador.</p>
-            <button
-              type="button"
-              onClick={requestLocation}
-              className="text-primary font-semibold underline"
-            >
-              Tentar novamente
-            </button>
+            {canRetry ? (
+              <>
+                <p>Permissão de localização negada.</p>
+                <button
+                  type="button"
+                  onClick={requestLocation}
+                  className="text-primary font-semibold underline"
+                >
+                  Tentar novamente
+                </button>
+              </>
+            ) : (
+              <p>
+                Permissão de localização negada. O navegador não vai perguntar de novo automaticamente — ative a localização para este site nas configurações do navegador e a página atualiza sozinha.
+              </p>
+            )}
           </div>
         )}
 

@@ -15,7 +15,7 @@ export default function Relatorio() {
     return salvo ? JSON.parse(salvo) : { nome: '' }
   })
 
-  const { status, coords, requestLocation } = useGeolocalizacao()
+  const { status, coords, requestLocation, canRetry } = useGeolocalizacao()
   const { hospitais } = useHospitais()
   const hospitalMaisProximo = hospitais[0] ?? null
   const [pontoReferencia, setPontoReferencia] = useState('');
@@ -450,23 +450,31 @@ export default function Relatorio() {
 
             {status === "denied" && (
               <div className="text-sm text-error font-medium space-y-1">
-                <p>❌ Permissão de localização negada.</p>
-                <p className="text-on-surface-variant font-normal">
-                  Ative a localização para este site nas configurações do navegador e toque em "Tentar novamente".
-                </p>
-                <button
-                  type="button"
-                  onClick={requestLocation}
-                  className="mt-1 text-primary font-semibold underline"
-                >
-                  Tentar novamente
-                </button>
+                <p>Permissão de localização negada.</p>
+                {canRetry ? (
+                  <>
+                    <p className="text-on-surface-variant font-normal">
+                      Toque em "Tentar novamente" para pedir a permissão de novo.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={requestLocation}
+                      className="mt-1 text-primary font-semibold underline"
+                    >
+                      Tentar novamente
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-on-surface-variant font-normal">
+                    O navegador não vai perguntar de novo automaticamente. Ative a permissão de localização para este site nas configurações do navegador — a página atualiza sozinha assim que você reativar.
+                  </p>
+                )}
               </div>
             )}
 
             {status === "error" && (
               <p className="text-sm text-error font-medium">
-                ❌ GPS não suportado ou indisponível neste navegador.
+                GPS não suportado ou indisponível neste navegador.
               </p>
             )}
 

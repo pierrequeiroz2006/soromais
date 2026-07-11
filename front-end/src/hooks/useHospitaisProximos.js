@@ -4,7 +4,7 @@ import { useGeolocalizacao } from '../context/GeolocalizacaoContext'
 const API_URL = import.meta.env.VITE_API_URL
 
 export function useHospitaisProximos() {
-  const { coords, status: geoStatus, requestLocation } = useGeolocalizacao()
+  const { coords, status: geoStatus, requestLocation, canRetry } = useGeolocalizacao()
   const [hospitais, setHospitais] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -20,5 +20,5 @@ export function useHospitaisProximos() {
       .finally(() => setLoading(false))
   }, [coords, geoStatus])
 
-  return { hospitais, loading, error, geoStatus, requestLocation }
+  return { hospitais, loading, error, geoStatus, requestLocation, canRetry }
 }
