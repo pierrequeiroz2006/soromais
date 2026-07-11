@@ -46,7 +46,7 @@ export default function PrimeirosSocorros() {
 
   return (
     <>
-      <TopAppBar showAlert={false} />
+      <TopAppBar />
 
       <main className="mt-14 mb-20 px-4 py-6 overflow-y-auto">
         <div className="max-w-xl mx-auto space-y-6">
