@@ -48,9 +48,9 @@ def gerar_pdf_relatorio(dados, hospital_nome: str) -> bytes:
             elementos.append(imagem)
             elementos.append(Spacer(1, 0.3 * cm))
 
-    if dados.especie or dados.animal:
+    if dados.especie:
         elementos.append(Paragraph("Animal Identificado", secao_style))
-        elementos.append(Paragraph(f"<b>Espécie:</b> {dados.especie or dados.animal or 'Não identificado'}", normal))
+        elementos.append(Paragraph(f"<b>Espécie:</b> {dados.especie}", normal))
         if dados.lugar:
             elementos.append(Paragraph(f"<b>Habitat/Ocorrência:</b> {dados.lugar}", normal))
         if dados.tempo_de_acao:
@@ -65,12 +65,7 @@ def gerar_pdf_relatorio(dados, hospital_nome: str) -> bytes:
 
     elementos.append(Paragraph("Dados da Vítima", secao_style))
     dados_vitima = [
-        ["Nome", dados.nome or "Não informado"],
-        ["Idade", f"{dados.idade} anos" if dados.idade else "Não informado"],
-        ["Peso", f"{dados.peso} kg" if dados.peso else "Não informado"],
-        ["Estado", dados.estado or "Não informado"],
-        ["Local da picada", dados.localPicada or "Não informado"],
-        ["Tempo decorrido", f"{dados.tempo} min" if dados.tempo else "Não informado"],
+        ["Nome", dados.nome or "Não informado"]
     ]
     tabela = Table(dados_vitima, colWidths=[5 * cm, 10 * cm])
     tabela.setStyle(TableStyle([

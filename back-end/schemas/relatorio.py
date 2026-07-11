@@ -18,12 +18,6 @@ class DadosRelatorio(BaseModel):
 class DadosWhatsApp(BaseModel):
     hospital_id: UUID
     nome: Optional[str] = None
-    idade: Optional[int] = None
-    peso: Optional[float] = None
-    estado: Optional[str] = None
-    animal: Optional[str] = None
-    localPicada: Optional[str] = None
-    tempo: Optional[int] = None
     localizacao: Optional[str] = None
     especie: Optional[str] = None
     lugar: Optional[str] = None
