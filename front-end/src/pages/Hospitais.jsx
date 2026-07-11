@@ -4,7 +4,7 @@ import HospitalCard from '../components/HospitalCard'
 import { useHospitais } from '../context/HospitaisContext'
 
 export default function Hospitais() {
-  const { hospitais, loading, geoStatus } = useHospitais()
+  const { hospitais, loading, geoStatus, requestLocation } = useHospitais()
 
   return (
     <>
@@ -38,7 +38,16 @@ export default function Hospitais() {
         )}
 
         {geoStatus === 'denied' && (
-          <p className="text-error font-medium">Permissão de GPS negada. Ative o GPS para ver hospitais próximos.</p>
+          <div className="text-error font-medium space-y-1">
+            <p>Permissão de localização negada. Ative a localização para este site nas configurações do navegador.</p>
+            <button
+              type="button"
+              onClick={requestLocation}
+              className="text-primary font-semibold underline"
+            >
+              Tentar novamente
+            </button>
+          </div>
         )}
 
         {loading && geoStatus === 'granted' && (
