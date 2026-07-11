@@ -1,12 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export function useGeolocation() {
   const [status, setStatus] = useState("idle");
   const [coords, setCoords] = useState(null);
 
-  useEffect(() => {
-    console.log("[geo] hook iniciado");
-
+  const requestLocation = useCallback(() => {
     if (!navigator.geolocation) {
       console.warn("[geo] navigator.geolocation não disponível");
       setStatus("error");
@@ -31,7 +29,12 @@ export function useGeolocation() {
     );
   }, []);
 
-  return { status, coords };
+  useEffect(() => {
+    console.log("[geo] hook iniciado");
+    requestLocation();
+  }, [requestLocation]);
+
+  return { status, coords, requestLocation };
 }
 
 //FUNCIONANDO APENAS EM LOCALHOST, APENAS QUANDO FOR PARA PRODUÇÃO IRÁ FUNCIONAR

@@ -15,7 +15,7 @@ export default function Relatorio() {
     return salvo ? JSON.parse(salvo) : { nome: '' }
   })
 
-  const { status, coords } = useGeolocalizacao()
+  const { status, coords, requestLocation } = useGeolocalizacao()
   const { hospitais } = useHospitais()
   const hospitalMaisProximo = hospitais[0] ?? null
   const [pontoReferencia, setPontoReferencia] = useState('');
@@ -449,9 +449,19 @@ export default function Relatorio() {
             </div>
 
             {status === "denied" && (
-              <p className="text-sm text-error font-medium">
-                ❌ Permissão de GPS negada pelo usuário.
-              </p>
+              <div className="text-sm text-error font-medium space-y-1">
+                <p>❌ Permissão de localização negada.</p>
+                <p className="text-on-surface-variant font-normal">
+                  Ative a localização para este site nas configurações do navegador e toque em "Tentar novamente".
+                </p>
+                <button
+                  type="button"
+                  onClick={requestLocation}
+                  className="mt-1 text-primary font-semibold underline"
+                >
+                  Tentar novamente
+                </button>
+              </div>
             )}
 
             {status === "error" && (
