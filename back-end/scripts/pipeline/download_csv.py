@@ -1,3 +1,8 @@
+# Etapa 1b do pipeline (back-end/scripts/pipeline.py): baixa o dump público do CNES
+# (Cadastro Nacional de Estabelecimentos de Saúde) — um ZIP grande com um CSV de TODOS os
+# estabelecimentos de saúde do Brasil — extrai em data/raw/ e apaga o ZIP. Esse CSV é depois
+# cruzado em final_json.py com os códigos CNES extraídos do PDF (parse_pdfs.py) para filtrar
+# só os hospitais que interessam.
 import requests
 from pathlib import Path
 import zipfile

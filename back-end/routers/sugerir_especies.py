@@ -8,13 +8,20 @@ from services.wikimedia import buscar_imagem_especie
 
 router = APIRouter(prefix="/sugerir-especies", tags=["sugestoes"])
 
+_GENEROS_VALIDOS = ["Bothrops", "Crotalus", "Lachesis", "Micrurus"]
+
 _SCHEMA_EXEMPLO = [
-    {"nome_popular": "Nome popular da espécie", "nome_cientifico": "Nome científico da espécie"}
+    {
+        "nome_popular": "Nome popular da espécie",
+        "nome_cientifico": "Nome científico da espécie",
+        "genero": "Um dos gêneros: Bothrops, Crotalus, Lachesis ou Micrurus",
+    }
 ]
 
 
 def _build_prompt(descricao: str, localizacao: str) -> str:
     contexto_geo = f"\nLocalização do incidente: {localizacao}" if localizacao else ""
+    generos = ", ".join(_GENEROS_VALIDOS)
     return f"""Você é um especialista em animais peçonhentos do Brasil.
 Com base na descrição abaixo, retorne SOMENTE um array JSON com exatamente 4 espécies mais prováveis.
 Sem texto adicional, sem markdown, sem explicações.{contexto_geo}
@@ -22,7 +29,8 @@ Sem texto adicional, sem markdown, sem explicações.{contexto_geo}
 Descrição do animal: {descricao}
 
 Regras:
-- Considere apenas animais peçonhentos nativos do Brasil
+- Considere apenas serpentes peçonhentas nativas do Brasil pertencentes aos gêneros: {generos}
+- O campo "genero" deve ser exatamente um desses valores: {generos}
 - Use a localização (se fornecida) para priorizar espécies da região
 - Ordene da mais para a menos provável
 - Retorne exatamente 4 itens
@@ -69,6 +77,7 @@ async def sugerir_especies(
         EspecieSugerida(
             nome_popular=e["nome_popular"],
             nome_cientifico=e["nome_cientifico"],
+            genero=e["genero"],
             imagem_url=img,
         )
         for e, img in zip(especies, imagens)
