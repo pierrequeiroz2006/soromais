@@ -85,7 +85,6 @@ export default function Relatorio() {
           lugar: ia.lugar,
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
-          gravidade: ia.gravidade,
           o_que_fazer: ia.o_que_fazer,
           foto_url: dados.foto_url,
         };
@@ -170,7 +169,6 @@ export default function Relatorio() {
           lugar: ia.lugar,
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
-          gravidade: ia.gravidade,
           o_que_fazer: ia.o_que_fazer,
         }
         setResultadoIa(novoResultado)
@@ -201,7 +199,6 @@ export default function Relatorio() {
     lugar: animal?.lugar || null,
     efeitos: animal?.efeitos || null,
     tempo_de_acao: animal?.tempo_de_acao || null,
-    gravidade: animal?.gravidade || null,
     foto_url: animal?.foto_url || null,
   }
 
@@ -404,7 +401,7 @@ export default function Relatorio() {
             <div className="flex items-center gap-xs mb-sm pr-8">
               <span className="material-symbols-outlined text-error">cancel</span>
               <h3 className="font-headline-sm text-headline-sm text-error">
-                Efeitos do Veneno — Gravidade: {animal.gravidade}
+                Efeitos do Veneno
               </h3>
             </div>
             {secoesAbertas.efeitos && (

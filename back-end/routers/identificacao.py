@@ -8,19 +8,16 @@ import uuid
 
 router = APIRouter(prefix="/identificar-animal", tags=["identificacao"])
 
-_GENEROS_VALIDOS = ["Bothrops", "Crotalus", "Lachesis", "Micrurus"]
+_GENEROS_VALIDOS = ["Bothrops", "Crotalus", "Lachesis", "Micrurus","Leptomicrurus"]
 
 _ANIMAL_SCHEMA = {
     "especie": "Nome popular (ex: Jararaca)",
     "lugar": "Regiões do país e habitats comuns onde é encontrado",
     "efeitos": "Principais sintomas e efeitos do veneno no corpo humano",
     "tempo_de_acao": "Tempo estimado para agravamento ou risco de morte sem socorro",
-    "gravidade": "Nível de urgência: exatamente um de ['Baixa', 'Moderada', 'Alta', 'Extrema']",
     "o_que_fazer": "Primeiros socorros específicos para esse animal, do momento da picada/ataque até a chegada ao hospital",
     "genero": "Um dos gêneros: Bothrops, Crotalus, Lachesis ou Micrurus",
 }
-
-_GRAVIDADES_VALIDAS = {"Baixa", "Moderada", "Alta", "Extrema"}
 
 
 def _build_prompt(localizacao: str) -> str:
@@ -84,9 +81,6 @@ async def identificar_animal(
 
         analise = json.loads(raw)
 
-        if analise.get("gravidade") not in _GRAVIDADES_VALIDAS:
-            analise["gravidade"] = "Moderada"
-
         return RespostaIdentificacao(
             status="sucesso",
             arquivo=file.filename,
@@ -133,9 +127,6 @@ O JSON deve ter exatamente estas chaves:
             raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
 
         analise = json.loads(raw)
-
-        if analise.get("gravidade") not in _GRAVIDADES_VALIDAS:
-            analise["gravidade"] = "Moderada"
 
         return RespostaIdentificacao(
             status="sucesso",
