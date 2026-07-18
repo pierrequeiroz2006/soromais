@@ -8,6 +8,7 @@ class AnaliseAnimal(BaseModel):
     tempo_de_acao: str
     gravidade: Literal["Baixa", "Moderada", "Alta", "Extrema"]
     o_que_fazer: str
+    genero: str
 
 class RespostaIdentificacao(BaseModel):
     status: str
