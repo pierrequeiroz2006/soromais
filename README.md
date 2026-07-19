@@ -10,11 +10,11 @@ Aplicativo web que identifica serpentes peçonhentas por foto ou descrição, or
 
 ## Sobre o projeto
 
-Acidentes com serpentes peçonhentas exigem atendimento rápido e específico: cada gênero de cobra tem um soro diferente, e perder tempo procurando qual hospital tem o antiveneno certo pode ser fatal. O SoroMais nasceu para reduzir esse tempo de resposta.
+Acidentes com serpentes peçonhentas exigem atendimento rápido e específico: perder tempo procurando qual hospital certo pode ser fatal. O SoroMais nasceu para reduzir esse tempo de resposta.
 
-O usuário tira uma foto do animal (ou descreve o que viu), a IA identifica a espécie e o gênero, o app já busca no mapa o hospital de referência mais próximo (calculado via geolocalização/PostGIS) e monta um relatório do acidente — enviado por WhatsApp direto para o hospital, com PDF anexado, antes mesmo da vítima chegar lá.
+O usuário tira uma foto do animal (ou descreve o que viu), a IA identifica a espécie e o gênero, o app já busca no mapa o hospital de referência mais próximo baseado nos Dados Oficiais da PESA(Ponto Estratégico de Soro Antiveneno)(calculado via geolocalização/PostGIS) e monta um relatório do acidente — enviado por WhatsApp direto para o hospital, com PDF anexado, antes mesmo da vítima chegar lá.
 
-**Público-alvo**: vítimas de acidentes ofídicos, acompanhantes e socorristas em campo (zona rural/áreas remotas), principalmente na Paraíba, onde a base de hospitais de referência já está mapeada.
+**Público-alvo**: vítimas de acidentes ofídicos, acompanhantes e socorristas em campo (zona rural/áreas remotas), principalmente na *Paraíba*, onde a base de hospitais de referência já está mapeada.
 
 **Status**: em desenvolvimento (MVP funcional, com fluxo completo de identificação → hospital → envio de relatório).
 
@@ -26,7 +26,7 @@ O usuário tira uma foto do animal (ou descreve o que viu), a IA identifica a es
 - 📍 **Geolocalização e endereço automático** — captura a posição do usuário e converte em endereço legível.
 - 📄 **Relatório em PDF** — gera um relatório do acidente (foto, espécie, efeitos, dados da vítima, localização) pronto para enviar ao hospital.
 - 💬 **Envio direto por WhatsApp** — dispara o relatório em PDF para o hospital escolhido via Twilio.
-- 📱 **PWA (instalável)** — funciona como app no celular, mesmo com conexão instável em campo.
+- 📱 **PWA (instalável)** — funciona como web app no celular, mesmo com conexão instável em campo.
 
 ## Tecnologias utilizadas
 
