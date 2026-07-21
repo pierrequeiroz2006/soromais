@@ -96,7 +96,34 @@ score_urgencia(Tipo, Sintomas, Pontos, Faixa) :-
     Percentual is (Pontos * 100) / Max,
     faixa_score(Percentual, Faixa).
 
-    
+
+% ==========================================================
+% PRÉ-TRIAGEM UNIVERSAL — avaliar_universal/2
+% Decide o estado inicial do caso a partir do bloco universal
+% (tempo + sintoma inicial).
+% Regra das 6h do MS: sem sintoma + tempo >= 6h → picada seca;
+% sem sintoma + tempo < 6h → observação em unidade de saúde.
+% Com sintoma → segue pra motores de gravidade.
+% ==========================================================
+
+% avaliar_universal(Universal, Estado)
+
+% Com sintoma → roda os motores de gravidade
+avaliar_universal(Universal, envenenamento) :-
+    memberchk(sintoma(sim), Universal).
+
+% Sem sintoma e tempo >= 6h → picada seca
+avaliar_universal(Universal, picada_seca) :-
+    memberchk(sintoma(nao), Universal),
+    memberchk(tempo_h(T), Universal),
+    T >= 6.
+
+% Sem sintoma e tempo < 6h → observação de 6h
+avaliar_universal(Universal, observar) :-
+    memberchk(sintoma(nao), Universal),
+    memberchk(tempo_h(T), Universal),
+    T < 6.
+
 % ==========================================================
 % TABELA DE RECOMENDAÇÃO
 % recomendacao_base(Grau, FaixaScore, Conduta)
