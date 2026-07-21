@@ -290,7 +290,7 @@ alerta(local_picada(pe),
 % Assinatura:
 %   avaliar(Tipo, Sintomas, Flags, Universal, Resultado)
 %
-% Onde Resultado = resultado(Tipo, Grau, Score, Max, Faixa, Conduta)
+% Onde Resultado = resultado(Tipo, Grau, Score, Max, Faixa, Conduta, Alertas)
 %
 %   Tipo     — átomo do acidente (botropico, laquetico, etc.)
 %   Grau     — leve/moderado/grave/picada_seca/observar
@@ -298,20 +298,23 @@ alerta(local_picada(pe),
 %   Max      — teto teórico do tipo (0 em casos sem envenenamento)
 %   Faixa    — baixa/media/alta
 %   Conduta  — verbo de conduta clínica
+%   Alertas  — lista de strings, uma por flag que gerou alerta
 % ==========================================================
 
 % Caso com envenenamento: roda os motores completos
 avaliar(Tipo, Sintomas, Flags, Universal,
-        resultado(Tipo, Grau, Score, Max, Faixa, Conduta)) :-
+        resultado(Tipo, Grau, Score, Max, Faixa, Conduta, Alertas)) :-
     avaliar_universal(Universal, envenenamento),
     grau_ms(Tipo, Sintomas, Grau),
     score_urgencia(Tipo, Sintomas, Score, Faixa),
     score_maximo(Tipo, Max),
-    recomendacao(Grau, Faixa, Flags, Conduta).
+    recomendacao(Grau, Faixa, Flags, Conduta),
+    findall(T, (member(F, Flags), alerta(F, T)), Alertas).
 
 % Caso picada_seca ou observar: pula os motores
 avaliar(_Tipo, _Sintomas, Flags, Universal,
-        resultado(_Tipo, Estado, 0, 0, baixa, Conduta)) :-
+        resultado(_Tipo, Estado, 0, 0, baixa, Conduta, Alertas)) :-
     avaliar_universal(Universal, Estado),
     Estado \= envenenamento,
-    recomendacao(Estado, baixa, Flags, Conduta).
+    recomendacao(Estado, baixa, Flags, Conduta),
+    findall(T, (member(F, Flags), alerta(F, T)), Alertas).
