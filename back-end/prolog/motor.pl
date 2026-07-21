@@ -80,3 +80,12 @@ tem_flag_ativa(Flags) :-
 recomendacao(Grau, Faixa, Flags, Conduta) :-
     \+ tem_flag_ativa(Flags),
     recomendacao_base(Grau, Faixa, Conduta).
+
+% ----------------------------------------------------------
+% Aperta uma conduta pra pelo menos transporte_imediato.
+% Se já é imediato ou prioridade máxima, mantém.
+% ----------------------------------------------------------
+
+aperta(transporte_prioridade_maxima, transporte_prioridade_maxima).
+aperta(transporte_imediato,          transporte_imediato).
+aperta(_,                            transporte_imediato).
