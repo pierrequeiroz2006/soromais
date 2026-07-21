@@ -1,3 +1,10 @@
+# Etapa final: lê data/output/hospitais.json (gerado por pipeline.py -> pipeline/final_json.py)
+# e faz upsert na tabela "hospital" do Supabase, usando o CNES como chave de conflito — ou
+# seja, pode ser rodado de novo sem duplicar registros, só atualiza os existentes.
+#
+# Pré-requisito: rodar `python back-end/scripts/pipeline.py` antes, para gerar o
+# hospitais.json. Rodar seed.py sozinho sem isso feito antes falha com FileNotFoundError.
+
 import json
 import os
 from pathlib import Path
@@ -16,6 +23,8 @@ path_json = Path(__file__).parent / "data/output/hospitais.json"
 with open(path_json, encoding="utf-8") as f:
     hospitais = json.load(f)
 
+# Normaliza cada registro do CNES para o formato da tabela "hospital" (campos vazios viram None,
+# nome/endereço em title case, endereço concatenado a partir de logradouro + número + bairro).
 registros = []
 for h in hospitais:
     endereco = " ".join(filter(None, [

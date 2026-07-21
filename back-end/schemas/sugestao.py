@@ -5,6 +5,7 @@ from typing import Optional
 class EspecieSugerida(BaseModel):
     nome_popular: str
     nome_cientifico: str
+    genero: str
     imagem_url: Optional[str] = None
 
 
