@@ -38,3 +38,25 @@ recomendacao_base(moderado, alta,  transporte_imediato).
 recomendacao_base(grave, baixa, transporte_imediato).
 recomendacao_base(grave, media, transporte_imediato).
 recomendacao_base(grave, alta,  transporte_prioridade_maxima).
+
+% ----------------------------------------------------------
+% Flags que ativam aperto de conduta
+% flag_ativa(Flag)
+%
+% Base: Categoria 1 (vulnerabilidade populacional/clínica)
+%       Categoria 2 (conduta inadequada iatrogênica)
+% Fonte: pesquisa Sofia (Hospital Israelita Albert Einstein,
+%        Centro de Vigilância Epidemiológica) — checkpoint.
+% ----------------------------------------------------------
+
+% Categoria 1: vulnerabilidade populacional/clínica
+flag_ativa(contexto_risco(gestacao)).
+flag_ativa(contexto_risco(crianca)).
+flag_ativa(contexto_risco(idoso)).
+flag_ativa(contexto_risco(anticoagulante)).
+
+% Categoria 2: conduta inadequada iatrogênica
+flag_ativa(interferencia(garrote)).
+flag_ativa(interferencia(corte)).
+flag_ativa(interferencia(sucao)).
+flag_ativa(interferencia(substancia)).
