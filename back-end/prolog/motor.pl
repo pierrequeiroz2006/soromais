@@ -1,5 +1,6 @@
 :- encoding(utf8).
 :- consult('conhecimento_ms.pl').
+:- consult('pesos.pl').
 
 % ==========================================================
 % motor.pl
@@ -77,6 +78,25 @@ grau_ms(Tipo, Sintomas, Grau) :-
     ), Graus),
     pior_grau_lista(Graus, Grau).
 
+% ==========================================================
+% MOTOR DE SCORE — score_urgencia/4
+% Percorre a lista de sintomas e calcula um score numérico
+% baseado na tabela peso/3, normalizado pelo máximo teórico
+% do tipo (Decisão 2 do checkpoint).
+% ==========================================================
+
+% score_urgencia(Tipo, Sintomas, Pontos, Faixa)
+score_urgencia(Tipo, Sintomas, Pontos, Faixa) :-
+    findall(P, (
+        member(Sintoma, Sintomas),
+        peso(Tipo, Sintoma, P)
+    ), Pesos),
+    sum_list(Pesos, Pontos),
+    score_maximo(Tipo, Max),
+    Percentual is (Pontos * 100) / Max,
+    faixa_score(Percentual, Faixa).
+
+    
 % ==========================================================
 % TABELA DE RECOMENDAÇÃO
 % recomendacao_base(Grau, FaixaScore, Conduta)
