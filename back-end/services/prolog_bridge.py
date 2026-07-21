@@ -18,6 +18,8 @@ def avaliar_caso(payload: dict) -> dict:
         encoding="utf-8",
     )
 
+    print("\n=== PROLOG ===\n", resultado.stdout.strip(), "\n==============\n")
+
     if resultado.returncode != 0:
         raise RuntimeError(f"Erro ao rodar o motor Prolog: {resultado.stderr.strip()}")
 
