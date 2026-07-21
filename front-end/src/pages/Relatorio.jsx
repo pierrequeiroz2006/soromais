@@ -7,6 +7,7 @@ import BottomSheet from '../components/BottomSheet'
 import { useGeolocalizacao } from '../context/GeolocalizacaoContext'
 import { useHospitais } from '../context/HospitaisContext'
 import MapaHospital from '../components/MapaHospital'
+import QuestionarioGravidade from '../components/QuestionarioGravidade'
 
 export default function Relatorio() {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -86,6 +87,7 @@ export default function Relatorio() {
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
           o_que_fazer: ia.o_que_fazer,
+          genero: ia.genero,
           foto_url: dados.foto_url,
         };
 
@@ -170,6 +172,7 @@ export default function Relatorio() {
           efeitos: ia.efeitos,
           tempo_de_acao: ia.tempo_de_acao,
           o_que_fazer: ia.o_que_fazer,
+          genero: ia.genero,
         }
         setResultadoIa(novoResultado)
         setSecoesAbertas(SECOES_PADRAO)
@@ -189,6 +192,8 @@ export default function Relatorio() {
   const SECOES_PADRAO = { dados: false, efeitos: true, oQueFazer: true }
   const [secoesAbertas, setSecoesAbertas] = useState(SECOES_PADRAO)
   const toggleSecao = (chave) => setSecoesAbertas(prev => ({ ...prev, [chave]: !prev[chave] }))
+
+  const [triagemGravidade, setTriagemGravidade] = useState(null)
 
   const animal = resultadoIa
 
@@ -445,6 +450,14 @@ export default function Relatorio() {
               </ul>
             )}
           </section>
+        )}
+
+        {animal?.genero && (
+          <QuestionarioGravidade
+            key={`${animal.genero}-${animal.especie}`}
+            genero={animal.genero}
+            onConcluir={setTriagemGravidade}
+          />
         )}
 
         {/* Dados da Vítima */}
