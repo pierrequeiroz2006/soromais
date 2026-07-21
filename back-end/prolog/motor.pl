@@ -85,6 +85,12 @@ aperta(_,                            transporte_imediato).
 % recomendacao(Grau, FaixaScore, Flags, Conduta)
 % ----------------------------------------------------------
 
+% Exceção: picada seca — sem envenenamento, alta com orientações
+recomendacao(picada_seca, _, _, alta_orientacoes).
+
+% Exceção: observar — em observação, mantém observação
+recomendacao(observar, _, _, observar_6h_unidade).
+
 % Sem flag ativa: conduta base direto
 recomendacao(Grau, Faixa, Flags, Conduta) :-
     \+ tem_flag_ativa(Flags),
