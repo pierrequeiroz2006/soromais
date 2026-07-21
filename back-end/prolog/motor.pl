@@ -214,3 +214,37 @@ recomendacao(Grau, Faixa, Flags, Conduta) :-
     tem_flag_ativa(Flags),
     recomendacao_base(Grau, Faixa, CondutaBase),
     aperta(CondutaBase, Conduta).
+
+% ==========================================================
+% ORQUESTRAÇÃO — avaliar/5
+% Ponto de entrada do motor. Recebe o caso completo do
+% paciente e devolve o resultado empacotado.
+%
+% Assinatura:
+%   avaliar(Tipo, Sintomas, Flags, Universal, Resultado)
+%
+% Onde Resultado = resultado(Tipo, Grau, Score, Max, Faixa, Conduta)
+%
+%   Tipo     — átomo do acidente (botropico, laquetico, etc.)
+%   Grau     — leve/moderado/grave/picada_seca/observar
+%   Score    — pontos brutos (0 em casos sem envenenamento)
+%   Max      — teto teórico do tipo (0 em casos sem envenenamento)
+%   Faixa    — baixa/media/alta
+%   Conduta  — verbo de conduta clínica
+% ==========================================================
+
+% Caso com envenenamento: roda os motores completos
+avaliar(Tipo, Sintomas, Flags, Universal,
+        resultado(Tipo, Grau, Score, Max, Faixa, Conduta)) :-
+    avaliar_universal(Universal, envenenamento),
+    grau_ms(Tipo, Sintomas, Grau),
+    score_urgencia(Tipo, Sintomas, Score, Faixa),
+    score_maximo(Tipo, Max),
+    recomendacao(Grau, Faixa, Flags, Conduta).
+
+% Caso picada_seca ou observar: pula os motores
+avaliar(_Tipo, _Sintomas, Flags, Universal,
+        resultado(_Tipo, Estado, 0, 0, baixa, Conduta)) :-
+    avaliar_universal(Universal, Estado),
+    Estado \= envenenamento,
+    recomendacao(Estado, baixa, Flags, Conduta).
