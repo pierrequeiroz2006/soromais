@@ -13,12 +13,59 @@
 % do Soromais, NÃO derivada literalmente do MS. Reflete a
 % Decisão 1 do checkpoint (grau MS manda no rótulo, score
 % alto aperta a conduta).
+
+
+% ==========================================================
+% ==========================================================
+% MOTOR CATEGÓRICO — grau_ms/3
+% Percorre a lista de sintomas do paciente e devolve o pior
+% grau encontrado (regra do "pior sinal marcado" do MS).
 % ==========================================================
 
 % ----------------------------------------------------------
-% Tabela de recomendação base (sem flags)
-% recomendacao_base(Grau, FaixaScore, Conduta)
+% Ordem dos graus (pior → melhor)
+% ordem_grau(Grau, Valor)
+% Valor maior = grau mais grave. Facilita a comparação
+% numérica em vez de textual.
 % ----------------------------------------------------------
+
+ordem_grau(picada_seca, 0).
+ordem_grau(leve,        1).
+ordem_grau(moderado,    2).
+ordem_grau(grave,       3).
+
+% ----------------------------------------------------------
+% Pior grau entre dois
+% pior_grau(G1, G2, GraveDosDois)
+% ----------------------------------------------------------
+
+pior_grau(G1, G2, G1) :-
+    ordem_grau(G1, V1),
+    ordem_grau(G2, V2),
+    V1 >= V2.
+
+pior_grau(G1, G2, G2) :-
+    ordem_grau(G1, V1),
+    ordem_grau(G2, V2),
+    V1 < V2.
+
+% ----------------------------------------------------------
+% Pior grau em uma lista de graus
+% pior_grau_lista(ListaDeGraus, PiorGrau)
+% ----------------------------------------------------------
+
+% Caso base: lista com um elemento — o pior é ele mesmo
+pior_grau_lista([G], G).
+
+% Caso recursivo: pior de [H|T] é o pior entre H e o pior de T
+pior_grau_lista([H | T], Pior) :-
+    pior_grau_lista(T, PiorDaCauda),
+    pior_grau(H, PiorDaCauda, Pior).
+
+% ==========================================================
+% TABELA DE RECOMENDAÇÃO
+% recomendacao_base(Grau, FaixaScore, Conduta)
+% ==========================================================
 
 % Casos sem envenenamento
 recomendacao_base(picada_seca, _, alta_orientacoes).
@@ -93,11 +140,15 @@ recomendacao(observar, _, _, observar_6h_unidade).
 
 % Sem flag ativa: conduta base direto
 recomendacao(Grau, Faixa, Flags, Conduta) :-
+    Grau \= picada_seca,
+    Grau \= observar,
     \+ tem_flag_ativa(Flags),
     recomendacao_base(Grau, Faixa, Conduta).
 
 % Com flag ativa: pega conduta base e aperta pra pelo menos imediato
 recomendacao(Grau, Faixa, Flags, Conduta) :-
+    Grau \= picada_seca,
+    Grau \= observar,
     tem_flag_ativa(Flags),
     recomendacao_base(Grau, Faixa, CondutaBase),
     aperta(CondutaBase, Conduta).
