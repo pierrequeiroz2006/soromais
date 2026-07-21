@@ -187,7 +187,9 @@ tem_flag_ativa(Flags) :-
 
 aperta(transporte_prioridade_maxima, transporte_prioridade_maxima).
 aperta(transporte_imediato,          transporte_imediato).
-aperta(_,                            transporte_imediato).
+aperta(C, transporte_imediato) :-
+    C \= transporte_prioridade_maxima,
+    C \= transporte_imediato.
 
 % ----------------------------------------------------------
 % Recomendação final: combina grau + score + flags → conduta
