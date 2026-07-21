@@ -95,15 +95,25 @@ export default function QuestionarioGravidade({ genero, onConcluir }) {
   }
 
   const alternarSelecaoMultipla = (valor) => {
-    setSelecaoMultipla((prev) =>
-      prev.includes(valor) ? prev.filter((v) => v !== valor) : [...prev, valor]
-    )
+    if (valor === null) {
+      // "Nenhuma" é excludente com as demais opções
+      setSelecaoMultipla((prev) => (prev.includes(null) ? [] : [null]))
+      return
+    }
+    setSelecaoMultipla((prev) => {
+      const semNenhuma = prev.filter((v) => v !== null)
+      return semNenhuma.includes(valor)
+        ? semNenhuma.filter((v) => v !== valor)
+        : [...semNenhuma, valor]
+    })
   }
 
   const confirmarMultipla = () => {
     const novosFlags = [
       ...flags,
-      ...selecaoMultipla.map((valor) => ({ chave: pergunta.chave, valor })),
+      ...selecaoMultipla
+        .filter((valor) => valor !== null)
+        .map((valor) => ({ chave: pergunta.chave, valor })),
     ]
     irParaProxima(universal, novosFlags, sintomas)
   }

@@ -70,6 +70,7 @@ export const PERGUNTAS_UNIVERSAIS = [
     pergunta: 'Há alguma condição especial? (marque todas que se aplicam)',
     tipoInput: 'multipla',
     opcoes: [
+      { label: 'Nenhuma', valor: null },
       { label: 'Gestação', valor: 'gestacao' },
       { label: 'Anticoagulante', valor: 'anticoagulante' },
       { label: 'Criança (menor de 12)', valor: 'crianca' },
