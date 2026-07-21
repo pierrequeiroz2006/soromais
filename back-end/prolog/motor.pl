@@ -216,6 +216,73 @@ recomendacao(Grau, Faixa, Flags, Conduta) :-
     aperta(CondutaBase, Conduta).
 
 % ==========================================================
+% ALERTAS DAS FLAGS — alerta/2
+% Texto do alerta que cada flag ativa gera na saída.
+% Alertas universais (não variam por tipo de acidente).
+%
+% Categorias:
+%   1. Vulnerabilidade populacional/clínica (contexto_risco)
+%   2. Conduta inadequada iatrogênica (interferencia)
+%   3. Localização anatômica de risco (local_picada)
+% ==========================================================
+
+% ----------------------------------------------------------
+% Categoria 1 — Vulnerabilidade populacional/clínica
+% Base: protocolos de internação obrigatória do
+% Hospital Israelita Albert Einstein.
+% ----------------------------------------------------------
+
+alerta(contexto_risco(gestacao),
+    "Gestante — internação obrigatória. Comunicar a unidade receptora com antecedência para preparar equipe obstétrica (risco de hemorragia uterina e sofrimento fetal).").
+
+alerta(contexto_risco(crianca),
+    "Criança — internação obrigatória. Menor reserva fisiológica e maior sensibilidade a alterações hemodinâmicas. Priorizar transporte.").
+
+alerta(contexto_risco(idoso),
+    "Idoso — internação obrigatória. Menor reserva fisiológica e comorbidades comuns aumentam risco de descompensação. Priorizar transporte.").
+
+alerta(contexto_risco(anticoagulante),
+    "Uso de anticoagulante — risco amplificado de sangramento em acidentes botrópico e laquético. Comunicar unidade receptora para ajuste hemostático.").
+
+% ----------------------------------------------------------
+% Categoria 2 — Conduta inadequada iatrogênica
+% Base: dados epidemiológicos de vigilância em saúde
+% associam essas intervenções a taxas mais altas de
+% necrose tecidual e amputações, especialmente em
+% acidentes botrópicos com picadas em extremidades.
+% ----------------------------------------------------------
+
+alerta(interferencia(garrote),
+    "Garrote/torniquete aplicado — remover imediatamente. Aumenta risco de necrose tecidual e síndrome compartimental. Registrar tempo estimado de amarração para a equipe hospitalar.").
+
+alerta(interferencia(corte),
+    "Corte no local da picada — risco elevado de infecção secundária e sangramento local. Avaliar necessidade de antibioticoterapia profilática na unidade receptora.").
+
+alerta(interferencia(sucao),
+    "Tentativa de sucção no local — risco de infecção e contaminação. Sem eficácia comprovada na remoção do veneno.").
+
+alerta(interferencia(substancia),
+    "Aplicação de substância no local (café, ervas, gelo, etc.) — pode mascarar sinais clínicos e aumentar risco de infecção. Documentar a substância aplicada.").
+
+% ----------------------------------------------------------
+% Categoria 3 — Localização anatômica de risco
+% Base: MS destaca picadas em extremidades (dedos, mãos, pés)
+% como maior risco de necrose e síndrome compartimental,
+% especialmente em acidentes botrópicos.
+% NOTA: local_picada NÃO aperta conduta (não está no catálogo
+% flag_ativa), apenas gera alerta educativo.
+% ----------------------------------------------------------
+
+alerta(local_picada(dedo),
+    "Picada em dedo — extremidade com maior risco de necrose e síndrome compartimental. Monitorar perfusão distal, temperatura e coloração.").
+
+alerta(local_picada(mao),
+    "Picada em mão — extremidade com risco elevado de complicações locais. Monitorar edema e comprometimento neurovascular.").
+
+alerta(local_picada(pe),
+    "Picada em pé — extremidade com risco elevado de complicações locais. Monitorar edema e comprometimento neurovascular.").
+
+% ==========================================================
 % ORQUESTRAÇÃO — avaliar/5
 % Ponto de entrada do motor. Recebe o caso completo do
 % paciente e devolve o resultado empacotado.
