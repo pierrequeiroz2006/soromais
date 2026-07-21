@@ -1,4 +1,5 @@
 :- encoding(utf8).
+:- consult('conhecimento_ms.pl').
 
 % ==========================================================
 % motor.pl
@@ -61,6 +62,20 @@ pior_grau_lista([G], G).
 pior_grau_lista([H | T], Pior) :-
     pior_grau_lista(T, PiorDaCauda),
     pior_grau(H, PiorDaCauda, Pior).
+
+% ----------------------------------------------------------
+% grau_ms/3 — motor categórico
+% grau_ms(Tipo, Sintomas, Grau)
+% "no acidente Tipo, com a lista Sintomas do paciente,
+% o pior grau disparado é Grau"
+% ----------------------------------------------------------
+
+grau_ms(Tipo, Sintomas, Grau) :-
+    findall(G, (
+        member(Sintoma, Sintomas),
+        sintoma_grau(Tipo, Sintoma, G)
+    ), Graus),
+    pior_grau_lista(Graus, Grau).
 
 % ==========================================================
 % TABELA DE RECOMENDAÇÃO
