@@ -60,3 +60,23 @@ flag_ativa(interferencia(garrote)).
 flag_ativa(interferencia(corte)).
 flag_ativa(interferencia(sucao)).
 flag_ativa(interferencia(substancia)).
+
+% ----------------------------------------------------------
+% Predicado auxiliar: verdadeiro se a lista contém pelo menos
+% uma flag que está no catálogo de flags ativas.
+% ----------------------------------------------------------
+
+% Existe alguma Flag que é membro da lista Flags E essa Flag está no catálogo flag_ativa.
+tem_flag_ativa(Flags) :-
+    member(Flag, Flags),
+    flag_ativa(Flag).
+
+% ----------------------------------------------------------
+% Recomendação final: combina grau + score + flags → conduta
+% recomendacao(Grau, FaixaScore, Flags, Conduta)
+% ----------------------------------------------------------
+
+% Sem flag ativa: conduta base direto
+recomendacao(Grau, Faixa, Flags, Conduta) :-
+    \+ tem_flag_ativa(Flags),
+    recomendacao_base(Grau, Faixa, Conduta).
