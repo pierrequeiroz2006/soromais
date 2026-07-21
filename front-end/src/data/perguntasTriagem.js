@@ -5,6 +5,23 @@
 // Prolog correspondente. valor === null significa "não gera átomo" (a resposta é omitida da
 // lista enviada ao motor), usado para respostas de ausência ("Não", "Normal", "Não sei", etc.).
 
+// Labels legíveis pros átomos que voltam de POST /triagem (grau/conduta do motor Prolog).
+export const LABELS_GRAU = {
+  picada_seca: 'Picada seca',
+  observar: 'Em observação',
+  leve: 'Leve',
+  moderado: 'Moderado',
+  grave: 'Grave',
+}
+
+export const LABELS_CONDUTA = {
+  alta_orientacoes: 'Alta com orientações',
+  observar_6h_unidade: 'Observação de 6h na unidade de saúde',
+  hospital_encaminhamento: 'Encaminhar ao hospital',
+  transporte_imediato: 'Transporte imediato ao hospital',
+  transporte_prioridade_maxima: 'Transporte com prioridade máxima',
+}
+
 export const GENERO_PARA_TIPO = {
   Bothrops: 'botropico',
   Lachesis: 'laquetico',

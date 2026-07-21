@@ -15,7 +15,6 @@ export default function QuestionarioGravidade({ genero, onConcluir }) {
   const [flags, setFlags] = useState([])
   const [sintomas, setSintomas] = useState([])
   const [concluido, setConcluido] = useState(false)
-  const [resultadoFinal, setResultadoFinal] = useState(null)
 
   const [valorNumero, setValorNumero] = useState('')
   const [selecaoMultipla, setSelecaoMultipla] = useState([])
@@ -31,8 +30,6 @@ export default function QuestionarioGravidade({ genero, onConcluir }) {
       flags: flagsFinal,
       universal: universalFinal,
     }
-    console.log('[QuestionarioGravidade] JSON final:', resultado)
-    setResultadoFinal(resultado)
     setConcluido(true)
     onConcluir?.(resultado)
   }
@@ -122,24 +119,20 @@ export default function QuestionarioGravidade({ genero, onConcluir }) {
 
   if (concluido) {
     return (
-      <section className="high-contrast-card p-md rounded-xl shadow-sm">
+      <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm">
         <div className="flex items-center gap-xs mb-xs">
           <span className="material-symbols-outlined text-primary">task_alt</span>
           <h3 className="font-headline-sm text-headline-sm">Análise de Gravidade</h3>
         </div>
-        <p className="font-body-md text-on-surface-variant mb-sm">
+        <p className="font-body-md text-on-surface-variant">
           Questionário concluído. As respostas foram registradas.
         </p>
-        {/* Preview temporário do JSON, só pra debug até existir endpoint de envio */}
-        <pre className="bg-surface-container-low border border-outline-variant rounded-lg p-sm text-[11px] overflow-x-auto whitespace-pre-wrap">
-          {JSON.stringify(resultadoFinal, null, 2)}
-        </pre>
       </section>
     )
   }
 
   return (
-    <section className="high-contrast-card p-md rounded-xl shadow-sm">
+    <section className="border border-outline-variant bg-white p-md rounded-xl shadow-sm">
       <div className="flex items-center justify-between mb-sm">
         <div className="flex items-center gap-xs">
           <span className="material-symbols-outlined text-primary">priority_high</span>
