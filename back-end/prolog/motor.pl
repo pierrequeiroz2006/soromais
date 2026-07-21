@@ -1,0 +1,40 @@
+:- encoding(utf8).
+
+% ==========================================================
+% motor.pl
+% Camada de inferência do Soromais.
+%
+% Contém três motores + a tabela de recomendação:
+%   grau_ms/2         — motor categórico (fiel ao Quadro 1)
+%   score_urgencia/2  — motor por pontuação (acúmulo de sinais)
+%   recomendacao/3    — combina grau + score → conduta clínica
+%
+% NOTA: a tabela de recomendação abaixo é decisão de design
+% do Soromais, NÃO derivada literalmente do MS. Reflete a
+% Decisão 1 do checkpoint (grau MS manda no rótulo, score
+% alto aperta a conduta).
+% ==========================================================
+
+% ----------------------------------------------------------
+% Tabela de recomendação base (sem flags)
+% recomendacao_base(Grau, FaixaScore, Conduta)
+% ----------------------------------------------------------
+
+% Casos sem envenenamento
+recomendacao_base(picada_seca, _, alta_orientacoes).
+recomendacao_base(observar,    _, observar_6h_unidade).
+
+% Grau leve
+recomendacao_base(leve, baixa, hospital_encaminhamento).
+recomendacao_base(leve, media, hospital_encaminhamento).
+recomendacao_base(leve, alta,  transporte_imediato).
+
+% Grau moderado
+recomendacao_base(moderado, baixa, hospital_encaminhamento).
+recomendacao_base(moderado, media, transporte_imediato).
+recomendacao_base(moderado, alta,  transporte_imediato).
+
+% Grau grave
+recomendacao_base(grave, baixa, transporte_imediato).
+recomendacao_base(grave, media, transporte_imediato).
+recomendacao_base(grave, alta,  transporte_prioridade_maxima).
