@@ -35,3 +35,14 @@ score_maximo(botropico, 17).
 score_maximo(laquetico, 14).
 score_maximo(crotalico, 16).
 score_maximo(elapidico, 9).
+
+% ----------------------------------------------------------
+% faixa_score/2 — classifica um percentual em faixa
+% faixa_score(Percentual, Faixa)
+%
+% Percentual esperado como valor 0-100 (não 0.0-1.0)
+% ----------------------------------------------------------
+
+faixa_score(P, baixa) :- P < 30.
+faixa_score(P, media) :- P >= 30, P =< 60.
+faixa_score(P, alta)  :- P > 60.
