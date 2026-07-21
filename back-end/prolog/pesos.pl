@@ -24,3 +24,14 @@ peso(Tipo, Sintoma, 2) :-
 peso(Tipo, Sintoma, 1) :-
     Sintoma \= coagulacao_proxy(alterada),
     sintoma_grau(Tipo, Sintoma, leve).
+
+% ----------------------------------------------------------
+% score_maximo/2 — máximo teórico de pontos por tipo
+% Soma dos pesos máximos de cada pergunta gradante do tipo.
+% Serve pra normalizar o score em percentual.
+% ----------------------------------------------------------
+
+score_maximo(botropico, 17).
+score_maximo(laquetico, 14).
+score_maximo(crotalico, 16).
+score_maximo(elapidico, 9).
