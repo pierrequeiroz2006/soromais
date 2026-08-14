@@ -8,10 +8,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = logging.getLogger("soromais")
-
-# IMPORTANT: this must be the Supabase ANON key, never the service_role key.
-# Access control must be enforced by Row Level Security (RLS) policies in the
-# Supabase dashboard, not by key secrecy. See supabase/migrations/0001_rls.sql.
 SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY") or os.getenv("SUPABASE_KEY")
 if not SUPABASE_KEY:
     logger.warning("SUPABASE_ANON_KEY / SUPABASE_KEY not set")

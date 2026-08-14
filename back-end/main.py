@@ -20,13 +20,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger("soromais")
 
-# CORS — never wide open. Restrict to the real frontend origin(s) via
-# ALLOWED_ORIGINS (comma separated). Defaults to no cross-origin access.
 ALLOWED_ORIGINS = [
     o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()
 ]
 
-# Rate limiting. Per-route stricter limits are applied on sensitive endpoints.
 app = FastAPI(title="SoroMais API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -38,7 +35,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# All routers require auth (API key or JWT). Set API_KEY / JWT_SECRET in prod.
 if not os.getenv("API_KEY") and not os.getenv("JWT_SECRET"):
     logger.warning(
         "API AUTH DISABLED: set API_KEY (or JWT_SECRET) before deploying to production."

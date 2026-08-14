@@ -20,7 +20,6 @@ _SCHEMA_EXEMPLO = [
 
 
 def _build_prompt(descricao: str, localizacao: str) -> str:
-    # descricao / localizacao are sanitised upstream; still framed as data.
     contexto_geo = f"\nLocalização do incidente: {localizacao}" if localizacao else ""
     return f"""Você é um especialista em animais peçonhentos do Brasil.
 Com base na descrição abaixo, retorne SOMENTE um array JSON com exatamente 4 espécies mais prováveis.

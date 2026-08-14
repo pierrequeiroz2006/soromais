@@ -20,7 +20,6 @@ async def salvar_relatorio(request: Request, dados: DadosRelatorio):
     if dados.lat and dados.lng:
         if not ponto_referencia:
             ponto_referencia = obter_endereco_por_coordenadas(dados.lat, dados.lng)
-        # ---------------------------------------
 
         local = {
             "lat": dados.lat,

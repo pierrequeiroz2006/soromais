@@ -9,12 +9,6 @@ from fastapi.security import APIKeyHeader, HTTPBearer, HTTPAuthorizationCredenti
 
 logger = logging.getLogger("soromais")
 
-# ---------------------------------------------------------------------------
-# Authentication: require a valid API key (X-API-Key) OR a signed JWT
-# (Authorization: Bearer). Enforcement is active only when at least one of
-# API_KEY / JWT_SECRET is configured. If neither is set the API is open, but
-# a warning is logged so this is never silently shipped to production.
-# ---------------------------------------------------------------------------
 API_KEY = os.getenv("API_KEY")
 API_KEY_NAME = "X-API-Key"
 JWT_SECRET = os.getenv("JWT_SECRET")
@@ -29,8 +23,6 @@ async def require_auth(
     creds: HTTPAuthorizationCredentials = Security(http_bearer),
 ):
     if not API_KEY and not JWT_SECRET:
-        # Open only when no credential is configured. A startup warning is also
-        # emitted from main.py so this never ships to production silently.
         return
 
     if API_KEY and api_key and secrets.compare_digest(api_key, API_KEY):
@@ -49,13 +41,6 @@ async def require_auth(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-
-# ---------------------------------------------------------------------------
-# Input sanitisation — mitigate prompt injection via user-controlled fields
-# (ponto_ref, descricao, nome_animal, nome_local). We strip control characters,
-# collapse whitespace/newlines and hard-cap length. The model is still told to
-# treat the value as untrusted data, never instructions.
-# ---------------------------------------------------------------------------
 _CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 MAX_USER_INPUT_LEN = int(os.getenv("MAX_USER_INPUT_LEN", "300"))
 
@@ -68,12 +53,6 @@ def sanitize_text(value: str | None, max_len: int = MAX_USER_INPUT_LEN) -> str:
     return value.strip()[:max_len]
 
 
-# ---------------------------------------------------------------------------
-# First-aid safety allowlist — the model is instructed never to return these,
-# but we also enforce it server-side before returning o_que_fazer to the user.
-# Any line containing a forbidden term is dropped; if nothing safe remains we
-# substitute vetted guidance.
-# ---------------------------------------------------------------------------
 _FORBIDDEN_FIRST_AID = [
     "torniquete",
     "sucção",

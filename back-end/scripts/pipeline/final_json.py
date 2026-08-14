@@ -48,6 +48,3 @@ df_result.to_json(path_result
                   ,orient='records')
 
 print(f"✓ {len(df_result)} hospitais exportados")
-
-
-

@@ -32,7 +32,6 @@ _GRAVIDADES_VALIDAS = {"Baixa", "Moderada", "Alta", "Extrema"}
 
 
 def _build_prompt(localizacao: str) -> str:
-    # localizacao is already sanitised upstream; treat as untrusted data only.
     contexto_geo = f"\nLocalização do incidente: {localizacao}" if localizacao else ""
     return f"""Você é um especialista em animais peçonhentos do Brasil.
 Analise a imagem e retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.{contexto_geo}
