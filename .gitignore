@@ -23,6 +23,10 @@ Thumbs.db
 
 # Variáveis de ambiente (Segurança!)
 .env
+back-end/.env
+front-end/.env
+.env.*
+!.env.example
 venv 
 
 #pdf's
