@@ -1,10 +1,16 @@
 import json
 import asyncio
-from fastapi import APIRouter, Form, HTTPException
+import logging
+
+from fastapi import APIRouter, Form, HTTPException, Request
 from typing import Optional
 from dependencies import gemini_client
 from schemas.sugestao import EspecieSugerida, RespostaSugestao
 from services.wikimedia import buscar_imagem_especie
+from security import sanitize_text
+from limiter import limiter
+
+logger = logging.getLogger("soromais")
 
 router = APIRouter(prefix="/sugerir-especies", tags=["sugestoes"])
 
@@ -33,13 +39,18 @@ Formato esperado:
 
 
 @router.post("", response_model=RespostaSugestao)
+@limiter.limit("15/minute")
 async def sugerir_especies(
+    request: Request,
     descricao: str = Form(...),
     ponto_ref: Optional[str] = Form(None),
     lat: Optional[float] = Form(None),
     lng: Optional[float] = Form(None),
 ):
-    localizacao = ponto_ref or (f"lat {lat}, lng {lng} (Brasil)" if lat and lng else "")
+    descricao = sanitize_text(descricao)
+    localizacao = sanitize_text(ponto_ref) or (
+        f"lat {lat}, lng {lng} (Brasil)" if lat and lng else ""
+    )
     prompt = _build_prompt(descricao, localizacao)
 
     try:
@@ -51,7 +62,7 @@ async def sugerir_especies(
         raise HTTPException(status_code=503, detail=f"IA indisponível no momento: {str(e)}")
 
     raw = response.text.strip()
-    print("\n=== GEMINI SUGESTÕES ===\n", raw, "\n=======================\n")
+    logger.debug("Gemini (sugestões) response received (chars=%d)", len(raw))
 
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
@@ -62,13 +73,13 @@ async def sugerir_especies(
         raise HTTPException(status_code=422, detail=f"IA retornou resposta mal formatada: {str(e)}")
 
     imagens = await asyncio.gather(*[
-        buscar_imagem_especie(e["nome_cientifico"]) for e in especies
+        buscar_imagem_especie(e.get("nome_cientifico", "")) for e in especies
     ])
 
     sugestoes = [
         EspecieSugerida(
-            nome_popular=e["nome_popular"],
-            nome_cientifico=e["nome_cientifico"],
+            nome_popular=e.get("nome_popular", ""),
+            nome_cientifico=e.get("nome_cientifico", ""),
             imagem_url=img,
         )
         for e, img in zip(especies, imagens)

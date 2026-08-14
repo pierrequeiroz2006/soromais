@@ -1,4 +1,3 @@
-import requests
 from io import BytesIO
 from datetime import datetime, timezone, timedelta
 from reportlab.lib.pagesizes import A4
@@ -7,12 +6,15 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
+from services.ssrf import safe_fetch
+
 
 def _baixar_imagem(url: str, largura_max=8 * cm):
     try:
-        resp = requests.get(url, timeout=10)
-        resp.raise_for_status()
-        img_buffer = BytesIO(resp.content)
+        conteudo = safe_fetch(url)
+        if not conteudo:
+            return None
+        img_buffer = BytesIO(conteudo)
         img = Image(img_buffer)
         proporcao = img.imageHeight / float(img.imageWidth)
         img.drawWidth = largura_max

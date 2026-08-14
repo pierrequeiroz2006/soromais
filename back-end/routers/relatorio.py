@@ -1,25 +1,31 @@
-from fastapi import APIRouter
+import logging
+
+from fastapi import APIRouter, Request
 from schemas.relatorio import DadosRelatorio
 from dependencies import supabase
-from services.location import obter_endereco_por_coordenadas 
+from services.location import obter_endereco_por_coordenadas
+from security import sanitize_text
+from limiter import limiter
+
+logger = logging.getLogger("soromais")
 
 router = APIRouter(prefix="/relatorio", tags=["relatorio"])
 
 
 @router.post("")
-async def salvar_relatorio(dados: DadosRelatorio):
+@limiter.limit("20/minute")
+async def salvar_relatorio(request: Request, dados: DadosRelatorio):
     localizacao_id = None
+    ponto_referencia = sanitize_text(dados.ponto_ref)
     if dados.lat and dados.lng:
-        ponto_referencia = dados.ponto_ref
         if not ponto_referencia:
             ponto_referencia = obter_endereco_por_coordenadas(dados.lat, dados.lng)
-        # ---------------------------------------
 
         local = {
             "lat": dados.lat,
             "long": dados.lng,
-            "ponto_ref": ponto_referencia, 
-            "nome": dados.nome_local,
+            "ponto_ref": ponto_referencia,
+            "nome": sanitize_text(dados.nome_local),
             "urbano_rural": dados.urbano_rural,
         }
         local_response = supabase.table("local").insert(local).execute()
@@ -39,7 +45,7 @@ async def salvar_relatorio(dados: DadosRelatorio):
     return {"sucesso": True, "paciente": paciente_response.data[0]}
 
 @router.get("/buscar-endereco")
-async def buscar_endereco(lat: float, lng: float):
-    # Chama a função tradutora que criamos
+@limiter.limit("30/minute")
+async def buscar_endereco(request: Request, lat: float, lng: float):
     endereco = obter_endereco_por_coordenadas(lat, lng)
     return {"endereco": endereco}

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useGeolocalizacao } from '../context/GeolocalizacaoContext'
-
-const API_URL = import.meta.env.VITE_API_URL
+import { apiFetch } from '../api'
 
 export function useHospitaisProximos() {
   const { coords, status: geoStatus, requestLocation, canRetry } = useGeolocalizacao()
@@ -13,7 +12,7 @@ export function useHospitaisProximos() {
     if (geoStatus !== 'granted' || !coords) return
 
     setLoading(true)
-    fetch(`${API_URL}/hospitais/proximos?lat=${coords.latitude}&lng=${coords.longitude}`)
+    apiFetch(`/hospitais/proximos?lat=${coords.latitude}&lng=${coords.longitude}`)
       .then(res => res.json())
       .then(data => setHospitais(data))
       .catch(err => setError(err))

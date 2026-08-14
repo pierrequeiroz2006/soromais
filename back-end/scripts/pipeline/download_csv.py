@@ -11,9 +11,9 @@ path_raw.mkdir(parents=True, exist_ok=True)
 path_zip = path_raw / "cnes_estabelecimentos.zip"
 
 response = requests.get(URL_BASE, timeout=120)          #ACESSA E TENTA BAIXAR O PDF
-    
-if response.status_code == 200:                 
-        
+
+if response.status_code == 200:
+
     with open(path_zip, "wb") as f:
         f.write(response.content)
 
@@ -26,5 +26,3 @@ if response.status_code == 200:
 
 else:
     print(f"✗ Falha no download — status {response.status_code}")   #RETORNA O POSSÍVEL ERRO
-    
-

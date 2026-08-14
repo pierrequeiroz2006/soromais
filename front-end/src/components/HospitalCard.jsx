@@ -1,6 +1,5 @@
 import { useState } from 'react'
-
-const API_URL = import.meta.env.VITE_API_URL
+import { apiFetch } from '../api'
 
 export default function HospitalCard({ hospital, featured = false, variant = 'full', dadosRelatorio, onEnviado }) {
   const { id, nome, endereco, distancia, tempo, telefone, lat, lng } = hospital
@@ -16,7 +15,7 @@ export default function HospitalCard({ hospital, featured = false, variant = 'fu
     setEnviando(true)
     setErro(null)
     try {
-      const resposta = await fetch(`${API_URL}/enviar-whatsapp`, {
+      const resposta = await apiFetch(`/enviar-whatsapp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ hospital_id: id, ...dadosRelatorio }),
