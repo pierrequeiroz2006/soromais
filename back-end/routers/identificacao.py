@@ -1,12 +1,23 @@
 import json
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+import os
+import uuid
+import logging
+
+import filetype
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from typing import Optional
 from google.genai import types
 from schemas.animal import RespostaIdentificacao
 from dependencies import gemini_client, supabase
-import uuid
+from security import sanitize_text, sanitize_o_que_fazer
+from limiter import limiter
+
+logger = logging.getLogger("soromais")
 
 router = APIRouter(prefix="/identificar-animal", tags=["identificacao"])
+
+_MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_BYTES", str(10 * 1024 * 1024)))
+_ALLOWED_IMAGE_EXT = {"jpg", "jpeg", "png", "webp", "gif"}
 
 _ANIMAL_SCHEMA = {
     "especie": "Nome popular (ex: Escorpião-amarelo)",
@@ -21,6 +32,7 @@ _GRAVIDADES_VALIDAS = {"Baixa", "Moderada", "Alta", "Extrema"}
 
 
 def _build_prompt(localizacao: str) -> str:
+    # localizacao is already sanitised upstream; treat as untrusted data only.
     contexto_geo = f"\nLocalização do incidente: {localizacao}" if localizacao else ""
     return f"""Você é um especialista em animais peçonhentos do Brasil.
 Analise a imagem e retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.{contexto_geo}
@@ -40,23 +52,33 @@ O JSON deve ter exatamente estas chaves:
 
 
 @router.post("", response_model=RespostaIdentificacao)
+@limiter.limit("10/minute")
 async def identificar_animal(
+    request: Request,
     file: UploadFile = File(...),
     lat: Optional[float] = Form(None),
     lng: Optional[float] = Form(None),
     ponto_ref: Optional[str] = Form(None),
 ):
     imagem_bytes = await file.read()
-    mime_type = file.content_type or "image/jpeg"
 
-    extensao = mime_type.split("/")[-1] or "jpg"
+    if len(imagem_bytes) > _MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="Arquivo muito grande")
+    kind = filetype.guess(imagem_bytes)
+    if kind is None or kind.extension.lower() not in _ALLOWED_IMAGE_EXT:
+        raise HTTPException(status_code=415, detail="Tipo de arquivo não suportado")
+    extensao = "jpg" if kind.extension.lower() in ("jpg", "jpeg") else kind.extension.lower()
+    mime_type = "image/jpeg" if extensao == "jpg" else f"image/{extensao}"
+
     nome_arquivo = f"{uuid.uuid4()}.{extensao}"
     supabase.storage.from_("fotos-animais").upload(
         nome_arquivo, imagem_bytes, {"content-type": mime_type}
     )
     foto_url = supabase.storage.from_("fotos-animais").get_public_url(nome_arquivo)
 
-    localizacao = ponto_ref or (f"lat {lat}, lng {lng} (Brasil)" if lat and lng else "")
+    localizacao = sanitize_text(ponto_ref) or (
+        f"lat {lat}, lng {lng} (Brasil)" if lat and lng else ""
+    )
     prompt = _build_prompt(localizacao)
 
     conteudo = [
@@ -71,7 +93,7 @@ async def identificar_animal(
         )
 
         raw = response.text.strip()
-        print("\n=== GEMINI ===\n", raw, "\n==============\n")
+        logger.debug("Gemini response received (chars=%d)", len(raw))
 
         if raw.startswith("```"):
             raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
@@ -80,6 +102,8 @@ async def identificar_animal(
 
         if analise.get("gravidade") not in _GRAVIDADES_VALIDAS:
             analise["gravidade"] = "Moderada"
+
+        analise["o_que_fazer"] = sanitize_o_que_fazer(analise.get("o_que_fazer"))
 
         return RespostaIdentificacao(
             status="sucesso",
@@ -95,7 +119,12 @@ async def identificar_animal(
 
 
 @router.post("/por-nome", response_model=RespostaIdentificacao)
-async def identificar_por_nome(nome_animal: str = Form(...)):
+@limiter.limit("10/minute")
+async def identificar_por_nome(
+    request: Request,
+    nome_animal: str = Form(...),
+):
+    nome_animal = sanitize_text(nome_animal)
     prompt = f"""Você é um especialista em animais peçonhentos do Brasil.
 A espécie é "{nome_animal}". Retorne SOMENTE um objeto JSON válido, sem texto adicional, sem markdown, sem explicações.
 
@@ -118,7 +147,7 @@ O JSON deve ter exatamente estas chaves:
         )
 
         raw = response.text.strip()
-        print("\n=== GEMINI POR NOME ===\n", raw, "\n======================\n")
+        logger.debug("Gemini (por-nome) response received (chars=%d)", len(raw))
 
         if raw.startswith("```"):
             raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
@@ -127,6 +156,8 @@ O JSON deve ter exatamente estas chaves:
 
         if analise.get("gravidade") not in _GRAVIDADES_VALIDAS:
             analise["gravidade"] = "Moderada"
+
+        analise["o_que_fazer"] = sanitize_o_que_fazer(analise.get("o_que_fazer"))
 
         return RespostaIdentificacao(
             status="sucesso",
