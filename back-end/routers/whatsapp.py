@@ -1,17 +1,23 @@
 import os
 import uuid
-from fastapi import APIRouter
+import logging
+
+from fastapi import APIRouter, Request
 from twilio.rest import Client
 from schemas.relatorio import DadosWhatsApp
 from dependencies import supabase
 from services.pdf_relatorio import gerar_pdf_relatorio
+from limiter import limiter
+
+logger = logging.getLogger("soromais")
 
 router = APIRouter(prefix="/enviar-whatsapp", tags=["notificacao"])
 
 BUCKET = "relatorios"
 
 @router.post("")
-async def enviar_whatsapp(dados: DadosWhatsApp):
+@limiter.limit("5/hour")
+async def enviar_whatsapp(request: Request, dados: DadosWhatsApp):
     hospital = supabase.table("hospital").select("*").eq("id", str(dados.hospital_id)).execute()
     if not hospital.data:
         return {"erro": "Hospital não encontrado"}
